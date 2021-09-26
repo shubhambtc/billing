@@ -148,7 +148,7 @@ class BillInvoice(APIView):
                 serializer.save()
         pdf = gen_pdf(serial['id'])
         bill=BillDetail.objects.get(pk=serial['id'])
-        local_file = open('/Users/shubham/Desktop/billsystem/invoices.pdf', 'rb')
+        local_file = open('invoices.pdf', 'rb')
         bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
         serialize = BillDetailSerializer(bill)
         return Response(serialize.data)
