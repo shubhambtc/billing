@@ -76,7 +76,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'billsystem.wsgi.application'
 
-
+CSRF_COOKIE_NAME = "csrftoken"
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 

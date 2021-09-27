@@ -276,7 +276,8 @@ class PDF(FPDF):
         
 
     #expense
-    def expense(self, bags, weight, amount, expenses):
+    def expense(self, bags, weight,expenses):
+        amount = self.all_details['total_amt']
         exp = {}
         exp['tulai'] = round(expenses.tulai*amount/100,2) if expenses else 0
         exp['dharmada'] = round(expenses.dharmada*amount/100,2) if expenses else 0
@@ -382,28 +383,28 @@ class PDF(FPDF):
         self.cell(65,5,"Bank Details", 0,0,'C')
         self.set_xy(15,257)
         self.set_font('Arial', 'B', 10)
-        self.cell(30,5,"Bank Name :", 0,0,'L')
-        self.set_xy(45,257)
+        self.cell(20,5,"Bank Name :", 0,0,'L')
+        self.set_xy(35,257)
         self.set_font('Arial', '', 10)
-        self.cell(35,5,bank_details['bank_name'], 0,0,'L')
+        self.cell(45,5,bank_details['bank_name'], 0,0,'L')
         self.set_xy(15,262)
         self.set_font('Arial', 'B', 10)
-        self.cell(30,5,"Bank A/C No :", 0,0,'L')
-        self.set_xy(45,262)
+        self.cell(20,5,"Bank A/C No :", 0,0,'L')
+        self.set_xy(35,262)
         self.set_font('Arial', '', 10)
-        self.cell(35,5,bank_details['bank_account_no'], 0,0,'L')
+        self.cell(45,5,bank_details['bank_account_no'], 0,0,'L')
         self.set_xy(15,267)
         self.set_font('Arial', 'B', 10)
-        self.cell(30,5,"Bank IFSC Code :", 0,0,'L')
-        self.set_xy(45,267)
+        self.cell(20,5,"Bank IFSC Code :", 0,0,'L')
+        self.set_xy(35,267)
         self.set_font('Arial', '', 10)
-        self.cell(35,5,bank_details['bank_ifsc'], 0,0,'L')
+        self.cell(45,5,bank_details['bank_ifsc'], 0,0,'L')
         self.set_xy(15,272)
         self.set_font('Arial', 'B', 10)
-        self.cell(30,4,"Bank Branch :", 0,0,'L')
-        self.set_xy(45,272)
+        self.cell(20,4,"Bank Branch :", 0,0,'L')
+        self.set_xy(35,272)
         self.set_font('Arial', '', 10)
-        self.cell(35,4,bank_details['bank_branch'], 0,0,'L')
+        self.cell(45,4,bank_details['bank_branch'], 0,0,'L')
     
     def pre_authenticated(self, company_name):
         self.set_xy(80,252)
@@ -427,7 +428,7 @@ class PDF(FPDF):
     
     def final_fun(self, frieght=10000):
         total = self.all_details['total_amt'] + self.all_details['expenses']
-        round_off = round(total,0)-round(total,2)
+        round_off = round(round(total,0)-round(total,2),2)
         self.set_xy(145, 211)
         self.set_font('Arial', 'B', 12)
         self.cell(25,8,"Round off", 0,0,'C')
@@ -435,7 +436,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(25,8,str(round_off), 0,0,'R')
         self.all_details['round_off'] = round_off
-        total = sum(self.all_details.values())
+        total = round(sum(self.all_details.values()),2)
         self.set_xy(145, 219)
         self.set_font('Arial', 'B', 12)
         self.cell(25,8,"Total", 0,0,'C')
@@ -449,7 +450,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(25,8,str(frieght), 0,0,'R')
         self.all_details['frieght'] = frieght
-        total = sum(self.all_details.values())
+        total = round(sum(self.all_details.values()),2)
         self.set_xy(135, 235)
         self.set_font('Arial', 'B', 12)
         self.cell(35,17,"Grand Total", 0,0,'C')
@@ -473,7 +474,3 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.set_xy(25, 185)
         self.cell(60,10,remarks, 0, 1,'L')
-
-
-        
-

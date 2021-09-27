@@ -48,7 +48,7 @@ def get_page_pdf(pdf, biltype,pk):
     pdf.set_detail(bill.bill_to)
     pdf.bill_items(bi)
     pdf.remarks(bill.remarks)
-    pdf.expense(bags=bit['uom__sum'], weight=bit['qty__sum'], amount=435765, expenses=bill.bill_to.expense)
+    pdf.expense(bags=bit['uom__sum'], weight=bit['qty__sum'], expenses=bill.bill_to.expense)
     pdf.final_fun(bill.frieght)
     pdf.total_s(bit['qty__sum'],bit['uom__sum'])
 
