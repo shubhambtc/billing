@@ -379,19 +379,19 @@ class PDF(FPDF):
         
     def bank_details(self, bank_details):
         self.set_xy(15,252)
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Arial', '', 10)
         self.cell(65,5,"Bank Details", 0,0,'C')
         self.set_xy(15,257)
-        self.set_font('Arial', 'B', 10)
-        self.cell(20,5,"Bank Name : "+bank_details['bank_name'], 0,0,'L')
+        self.set_font('Arial', '', 10)
+        self.cell(20,5,"Bank Name : "+bank_details['bank_name'].title(), 0,0,'L')
         self.set_xy(15,262)
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Arial', '', 10)
         self.cell(20,5,"Bank A/C No : "+bank_details['bank_account_no'], 0,0,'L')
         self.set_xy(15,267)
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Arial', '', 10)
         self.cell(20,5,"Bank IFSC Code : "+bank_details['bank_ifsc'], 0,0,'L')
         self.set_xy(15,272)
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Arial', '', 10)
         self.cell(20,4,"Bank Branch : "+bank_details['bank_branch'], 0,0,'L')
     
     def pre_authenticated(self, company_name):
