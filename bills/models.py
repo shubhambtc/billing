@@ -42,7 +42,7 @@ BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255)
     date = models.DateField()
-    vehicle_no = models.CharField(max_length=255)
+    vehicle_no = models.CharField(max_length=255, blank=True, null=True)
     bill_to = models.ForeignKey(BillTo, on_delete=models.CASCADE, blank=True, null=True)
     bill_by = models.ForeignKey(BillBy, on_delete=models.CASCADE, blank=True, null=True)
     remarks = models.CharField(max_length=255, default='', blank=True, null=True)
@@ -56,4 +56,4 @@ class BillItem(models.Model):
     rate = models.IntegerField()
     qty = models.FloatField()
     uom = models.IntegerField(blank=True, default=100)
-    po_number = models.CharField(max_length=255, default="")
+    po_number = models.CharField(max_length=255, default="", blank=True)

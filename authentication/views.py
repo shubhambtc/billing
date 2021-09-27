@@ -23,8 +23,9 @@ from rest_framework.decorators import permission_classes
 from .serializers import RegistrationSerializer, LoginSerializer
 from .renderer import UserJSONRenderer
 from bills.models import BillTo, BillItem, BillBy, Expense, BillDetail
-from bills.serializers import ExpenseSerializer, BillDetailSerializer, BillDetailinsideSerializer, BillItemSerializer
+from bills.serializers import ExpenseSerializer, BillDetailSerializer, BillDetailinsideSerializer, BillItemSerializer, BillSerializer
 from rest_framework.renderers import BaseRenderer
+
 def get_invoice(x):
     stri = x.name.split(" ")
     strip = [ele[0] for ele in stri]
@@ -60,17 +61,6 @@ def gen_pdf(pk):
     return pdf
 
 def current_user_details(request):
-    """Get current user details
-
-    Args:
-        request (object): Objects of the request done by the client
-
-    Raises:
-        ValueError: ValueError is generated when user doesn't have any current organisation id
-
-    Returns:
-        dict: Current Organisation id, user id, user details
-    """
     user = User.objects.get(email=request.user.email)
     if user.current_organisation_id is None:
         raise ValueError("User must have a current organisation id")
@@ -105,23 +95,10 @@ def attach_to_dict(data, current_info, model):
     data["modified_by"] = current_info["user_id"]
 
 def attach_to_list(data, current_info, model):
-    """Attaching current info to list
-
-    Args:
-        data (object): data model object
-        
-        current_info (dict): value we need to set
-    """
     for val in data:
         attach_to_dict(val, current_info, model)
 
 def attach_current_info(data, current_info, model):
-    """Attaching current info to any item
-
-    Args:
-        data (object): data model object
-        current_info (dict): value we need to set
-    """
     if isinstance(data, dict):
         attach_to_dict(data, current_info, model)
     elif isinstance(data, list):
@@ -133,7 +110,7 @@ class BillInvoice(APIView):
         bi = BillBy.objects.get(pk=request.data['bill']['bill_by'])
         inv = get_invoice(bi)
         request.data['bill']['invoice_no'] = inv
-        serial = BillDetailSerializer(data = request.data['bill'])
+        serial = BillSerializer(data = request.data['bill'])
         if serial.is_valid():
             serial.save()
             serial = serial.data
@@ -141,11 +118,13 @@ class BillInvoice(APIView):
             for d in data:
                 d['bill_detail'] = serial['id']
         else:
-            print(serial.errors)
+            return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST)
         for e in data:
             serializer = BillItemSerializer(data=e)
             if serializer.is_valid():
                 serializer.save()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         pdf = gen_pdf(serial['id'])
         bill=BillDetail.objects.get(pk=serial['id'])
         local_file = open('invoices.pdf', 'rb')
@@ -166,7 +145,7 @@ class ResourceAPIView(APIView):
         try:
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
-            return Response({'message': 'The resource does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.resource_serializer(resource_item)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -174,12 +153,12 @@ class ResourceAPIView(APIView):
         try:
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
-            return Response({'message': 'The resource does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.resource_serializer(resource_item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, pk):
         if self.model == BillTo:
@@ -192,7 +171,7 @@ class ResourceAPIView(APIView):
                     data = request.data['bill_to']
                     data['expense'] = serial['id']
                 else:
-                    return Response(serial.errors, status=status.HTTP_404_NOT_FOUND) 
+                    return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST) 
             else:
                 data = request.data['bill_to']
                 data['expense'] = None
@@ -204,23 +183,23 @@ class ResourceAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
                 resource_item = self.model.objects.get(pk=pk)
             except self.model.DoesNotExist:
-                return Response({'message': 'The resource does not exist'},status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
             serializer = self.resource_serializer(resource_item, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         try:
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
-            return Response({'message': 'The resource does not exist'},status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
         resource_item.delete()
         return Response({'message': 'The resource is deleted successfully!'}, status=status.HTTP_201_CREATED)
 

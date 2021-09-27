@@ -60,7 +60,7 @@ class LoginSerializer(serializers.Serializer):
 
         return {
             'email': user.email,
-            'token': str(user.token)[2:-1]
+            'token': str(user.token)
         }
 
 class UserSerializer(serializers.ModelSerializer):

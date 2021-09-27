@@ -134,3 +134,14 @@ STATICFILES_DIRS = [
 ]
 MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+REACT_ROUTES = [
+    'login',
+    'logout',
+    'bill',
+    'bill-list',
+    'bill-by',
+    'bill-by-list',
+    'bill-to',
+    'bill-to-list',
+]

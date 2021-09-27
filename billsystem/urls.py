@@ -25,3 +25,9 @@ urlpatterns = [
     path('api/',include('bills.urls')),
     path('',index, name='index')
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+routes = getattr(settings, 'REACT_ROUTES', [])
+for route in routes:
+    urlpatterns += [
+        path('{}'.format(route),index, name="index" )
+    ]

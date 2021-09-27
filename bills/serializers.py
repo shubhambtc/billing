@@ -27,6 +27,14 @@ class BillBySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BillDetailSerializer(serializers.ModelSerializer):
+    bill_to = BillToSerializer()
+    bill_by = BillBySerializer()
+
+    class Meta:
+        model = BillDetail
+        fields = '__all__'
+class BillSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = BillDetail
         fields = '__all__'

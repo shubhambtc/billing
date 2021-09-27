@@ -1,4 +1,11 @@
 from fpdf import FPDF
+genes = {
+    "paddy" : "100610",
+    "maize" : "100590",
+    "bajra" : "100829",
+    "wheat" : "100110",
+    "mustard_seed" : "120750",
+}
 
 def number_to_word(number):
     def get_word(n):
@@ -233,11 +240,16 @@ class PDF(FPDF):
         self.set_xy(15,130+(8*s_no))
         self.set_font('Arial', '', 12)
         self.cell(10,10,str(s_no), 0, 0,'C')
-        self.set_xy(25,130+(8*s_no))
         self.set_font('Arial', '', 12)
-        self.cell(60,10,bill_item.item.title(), 0, 0,'C')
+        if bill_item.po_number:
+            self.set_font('Arial', '', 12)
+            self.set_xy(25,130+(8*s_no))
+            self.cell(60,10,bill_item.item.title() + " P O :- " + bill_item.po_number, 0, 0,'C')
+        else:
+            self.set_xy(25,130+(8*s_no))
+            self.cell(60,10,bill_item.item.title(), 0, 0,'C')
         self.set_xy(85,130+(8*s_no))
-        self.cell(20,10,bill_item.item.title(), 0, 0,'C')
+        self.cell(20,10,genes[bill_item.item], 0, 0,'C')
         self.set_xy(105,130+(8*s_no))
         self.cell(20,10,str(bill_item.uom), 0, 0,'C')
         self.set_xy(125,130+(8*s_no))
@@ -464,3 +476,4 @@ class PDF(FPDF):
 
 
         
+
