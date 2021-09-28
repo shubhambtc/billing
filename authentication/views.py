@@ -32,7 +32,7 @@ def get_invoice(x):
     strip = [ele[0] for ele in stri]
     bill_count = b.invoices_no +1
     spli = "".join(strip) 
-    spli = spli + "/2020-2021/"
+    spli = spli + "/2021-2022/"
     spli += str(bill_count).zfill(3)
     b.invoices_no=bill_count
     b.save()
