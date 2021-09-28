@@ -459,6 +459,7 @@ class PDF(FPDF):
         self.cell(20,10,str(uom), 0,0,'C')
     
     def remarks(self,remarks="BARDANA D15 HAI"):
-        self.set_font('Arial', '', 12)
-        self.set_xy(25, 185)
-        self.cell(60,10,remarks, 0, 1,'L')
+        if remarks:
+            self.set_font('Arial', '', 12)
+            self.set_xy(25, 185)
+            self.cell(60,10,remarks, 0, 1,'L')
