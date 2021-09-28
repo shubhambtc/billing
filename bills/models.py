@@ -54,7 +54,7 @@ class BillDetail(models.Model):
 class BillItem(models.Model):
     bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE)
     item = models.CharField(max_length=255)
-    rate = models.IntegerField()
+    rate = models.FloatField()
     qty = models.FloatField()
     uom = models.IntegerField(blank=True, default=100)
     po_number = models.CharField(max_length=255, default="", blank=True)
