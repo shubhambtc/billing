@@ -1,5 +1,5 @@
 from django.urls import path, include
-from authentication.views import ResourceAPIView, GetListView, BillInvoice
+from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem
 from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer
 urlpatterns = [
@@ -44,4 +44,5 @@ urlpatterns = [
         model = BillItem,
         resource_serializer = BillItemSerializer
     )),
+    path('bill-get/<int:pk>',Bill.as_view()),
 ]

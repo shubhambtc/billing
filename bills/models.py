@@ -38,6 +38,7 @@ class BillBy(models.Model):
     bank_account_no = models.CharField(max_length=255)
     bank_ifsc = models.CharField(max_length=255)
     bank_branch = models.CharField(max_length=255)
+    invoices_no = models.IntegerField(default=0,null=True, blank=True)
 BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255)

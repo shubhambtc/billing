@@ -27,12 +27,15 @@ from bills.serializers import ExpenseSerializer, BillDetailSerializer, BillDetai
 from rest_framework.renderers import BaseRenderer
 
 def get_invoice(x):
-    stri = x.name.split(" ")
+    b = BillBy.objects.get(pk=x)
+    stri = b.name.split(" ")
     strip = [ele[0] for ele in stri]
-    bill_count = BillDetail.objects.filter(bill_by=x, bw='A').count()+1
+    bill_count = b.invoices_no +1
     spli = "".join(strip) 
     spli = spli + "/2020-2021/"
     spli += str(bill_count).zfill(3)
+    b.invoices_no=bill_count
+    b.save()
     return spli
 
     
@@ -103,12 +106,22 @@ def attach_current_info(data, current_info, model):
         attach_to_dict(data, current_info, model)
     elif isinstance(data, list):
         attach_to_list(data, current_info, model)
+class Bill(APIView):
+    def get(self, request, pk):
+        try:
+            gen_pdf(pk)
+            bill=BillDetail.objects.get(pk=pk)
+            local_file = open('invoices.pdf', 'rb')
+            bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
+            serialize = BillDetailSerializer(bill)
+            return Response(serialize.data)
+        except:
+            return Response({'status':"Something went wrong"})
 
 
 class BillInvoice(APIView):
     def put(self, request, *args, **kwargs):
-        bi = BillBy.objects.get(pk=request.data['bill']['bill_by'])
-        inv = get_invoice(bi)
+        inv = get_invoice(request.data['bill']['bill_by'])
         request.data['bill']['invoice_no'] = inv
         serial = BillSerializer(data = request.data['bill'])
         if serial.is_valid():

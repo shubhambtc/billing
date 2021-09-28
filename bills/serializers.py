@@ -25,10 +25,16 @@ class BillBySerializer(serializers.ModelSerializer):
     class Meta:
         model = BillBy
         fields = '__all__'
+class BillItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillItem
+        fields = '__all__'
+
 
 class BillDetailSerializer(serializers.ModelSerializer):
-    bill_to = BillToSerializer()
-    bill_by = BillBySerializer()
+    company_name = serializers.CharField(source='bill_by.name')
+    party_name = serializers.CharField(source='bill_to.name')
+    bill_items = BillItemSerializer(source='billitem_set', many=True) 
 
     class Meta:
         model = BillDetail
@@ -39,10 +45,6 @@ class BillSerializer(serializers.ModelSerializer):
         model = BillDetail
         fields = '__all__'
 
-class BillItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BillItem
-        fields = '__all__'
 
 
 class BillDetailinsideSerializer(serializers.ModelSerializer):
