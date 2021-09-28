@@ -257,7 +257,7 @@ class PDF(FPDF):
         self.set_xy(145,130+(8*s_no))
         self.cell(25,10,str(bill_item.rate), 0, 0,'C')
         self.set_xy(170,130+(8*s_no))
-        self.cell(25,10,str(round(bill_item.qty*bill_item.rate),2), 0, 0,'C')
+        self.cell(25,10,str(round(bill_item.qty*bill_item.rate,2)), 0, 0,'C')
 
     def bill_items(self, bill_items):
         s_no=1
