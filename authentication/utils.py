@@ -6,7 +6,9 @@ genes = {
     "wheat" : "100110",
     "mustard_seed" : "120750",
 }
-
+def round_school(x):
+    i, f = divmod(x, 1)
+    return int(i + ((f >= 0.5) if (x > 0) else (f > 0.5)))
 def number_to_word(number):
     def get_word(n):
         words={ 0:"", 1:"One", 2:"Two", 3:"Three", 4:"Four", 5:"Five", 6:"Six", 7:"Seven", 8:"Eight", 9:"Nine", 10:"Ten", 11:"Eleven", 12:"Twelve", 13:"Thirteen", 14:"Fourteen", 15:"Fifteen", 16:"Sixteen", 17:"Seventeen", 18:"Eighteen", 19:"Nineteen", 20:"Twenty", 30:"Thirty", 40:"Forty", 50:"Fifty", 60:"Sixty", 70:"Seventy", 80:"Eighty", 90:"Ninty" }
@@ -416,7 +418,7 @@ class PDF(FPDF):
     
     def final_fun(self, frieght):
         total = self.all_details['total_amt'] + self.all_details['expenses']
-        round_off = round(round(total,0)-round(total,2),2)
+        round_off = round(round_school(total)-round(total,2),2)
         self.set_xy(145, 211)
         self.set_font('Arial', 'B', 12)
         self.cell(25,8,"Round off", 0,0,'C')
@@ -424,7 +426,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(25,8,str(round_off), 0,0,'R')
         self.all_details['round_off'] = round_off
-        total = round(sum(self.all_details.values()),2)
+        total = round_school(sum(self.all_details.values()))
         self.set_xy(145, 219)
         self.set_font('Arial', 'B', 12)
         self.cell(25,8,"Total", 0,0,'C')
@@ -438,7 +440,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(25,8,str(frieght), 0,0,'R')
         self.all_details['frieght'] = frieght
-        total = round(sum(self.all_details.values()),2)
+        total = round_school(sum(self.all_details.values()))
         self.set_xy(135, 235)
         self.set_font('Arial', 'B', 12)
         self.cell(35,17,"Grand Total", 0,0,'C')
