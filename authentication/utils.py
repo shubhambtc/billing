@@ -118,7 +118,7 @@ class PDF(FPDF):
         self.set_xy(15,70)
         self.cell(180,7,"Bill of Supply", 0,0,'C')
     
-    def set_date_vehicle(self, inv=123, date="2021-09-2021", vehicle="UP13AT1693"):
+    def set_date_vehicle(self, inv, date, vehicle):
         self.set_font('Arial', 'B', 12)
         self.set_xy(15, 77)
         self.cell(40,7.5, "Serial No :", 0, 0,'L')
@@ -257,7 +257,7 @@ class PDF(FPDF):
         self.set_xy(145,130+(8*s_no))
         self.cell(25,10,str(bill_item.rate), 0, 0,'C')
         self.set_xy(170,130+(8*s_no))
-        self.cell(25,10,str(bill_item.qty*bill_item.rate), 0, 0,'C')
+        self.cell(25,10,str(round(bill_item.qty*bill_item.rate),2), 0, 0,'C')
 
     def bill_items(self, bill_items):
         s_no=1
@@ -265,7 +265,7 @@ class PDF(FPDF):
         for bill_item in bill_items:
             self.bill_item(s_no,bill_item)
             s_no +=1
-            total_amt += bill_item.qty*bill_item.rate
+            total_amt += round(bill_item.qty*bill_item.rate,2)
         self.all_details['total_amt'] = total_amt
         self.set_font('Arial', 'B', 12)
         self.set_xy(145, 195)
@@ -289,7 +289,7 @@ class PDF(FPDF):
         exp['mandi_shulk'] = round(expenses.mandi_shulk*amount/100,2) if expenses else 0
         exp['bardana'] = round(expenses.bardana*bags,2) if expenses else 0
         exp['others'] = round(expenses.others,2) if expenses else 0
-        exp['total'] = sum(exp.values())
+        exp['total'] = round(sum(exp.values()),2)
         self.all_details['expenses'] = exp['total']
         self.set_font('Arial', 'B', 10)
         self.set_xy(25, 195)
@@ -358,7 +358,7 @@ class PDF(FPDF):
         self.set_xy(170, 203)
         self.cell(25,8,str(exp['total']), 0, 1,'R')
 
-    def amount_to_words(self, amount=435676):
+    def amount_to_words(self, amount):
         word = number_to_word(amount)
         self.set_font('Arial', 'B', 10)
         self.set_xy(15, 219)
@@ -414,7 +414,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Authorised Signatory", 0,0,'C')
     
-    def final_fun(self, frieght=10000):
+    def final_fun(self, frieght):
         total = self.all_details['total_amt'] + self.all_details['expenses']
         round_off = round(round(total,0)-round(total,2),2)
         self.set_xy(145, 211)
@@ -458,7 +458,7 @@ class PDF(FPDF):
         self.set_font('Arial', 'B', 12)
         self.cell(20,10,str(uom), 0,0,'C')
     
-    def remarks(self,remarks="BARDANA D15 HAI"):
+    def remarks(self,remarks):
         if remarks:
             self.set_font('Arial', '', 12)
             self.set_xy(25, 185)
