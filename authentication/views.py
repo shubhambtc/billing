@@ -108,15 +108,15 @@ def attach_current_info(data, current_info, model):
         attach_to_list(data, current_info, model)
 class Bill(APIView):
     def get(self, request, pk):
-        try:
+        # try:
             gen_pdf(pk)
             bill=BillDetail.objects.get(pk=pk)
             local_file = open('invoices.pdf', 'rb')
             bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
             serialize = BillDetailSerializer(bill)
             return Response(serialize.data)
-        except:
-            return Response({'status':"Something went wrong"})
+        # except:
+        #     return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BillInvoice(APIView):
