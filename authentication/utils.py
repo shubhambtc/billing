@@ -1,6 +1,11 @@
 from fpdf import FPDF
 genes = {
-    "paddy" : "100610",
+    "paddy":"100610",
+    "paddy sarbati" : "100610",
+    "paddy sugandh" : "100610",
+    "paddy 1509" : "100610",
+    "paddy RS10" : "100610",
+    "paddy 1121" : "100610",
     "maize" : "100590",
     "bajra" : "100829",
     "wheat" : "100110",
@@ -246,7 +251,10 @@ class PDF(FPDF):
         if bill_item.po_number:
             self.set_font('Arial', '', 12)
             self.set_xy(25,130+(8*s_no))
-            self.cell(60,10,bill_item.item.title() + " P O :- " + bill_item.po_number, 0, 0,'C')
+            self.cell(30,10,bill_item.item.title(), 0, 0,'L')
+            self.set_font('Arial', '', 10)
+            self.set_xy(55,130+(8*s_no))
+            self.cell(30,10,bill_item.po_number,0,0,'R')
         else:
             self.set_xy(25,130+(8*s_no))
             self.cell(60,10,bill_item.item.title(), 0, 0,'C')
