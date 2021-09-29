@@ -1,5 +1,6 @@
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
+from jsonfield import JSONField
 # Create your models here.
 BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
@@ -50,6 +51,7 @@ class BillDetail(models.Model):
     bw = models.CharField(max_length=255, default='A', choices=BW_CHOICES)
     frieght = models.IntegerField(default=0)
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
+    expenses = models.JSONField(default=dict, blank=True, null=True)
 
 class BillItem(models.Model):
     bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE, blank=True, null=True)
