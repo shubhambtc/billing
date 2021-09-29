@@ -41,18 +41,18 @@ class BillBy(models.Model):
     invoices_no = models.IntegerField(default=0,null=True, blank=True)
 BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
-    invoice_no = models.CharField(max_length=255)
+    invoice_no = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField()
     vehicle_no = models.CharField(max_length=255, blank=True, null=True)
-    bill_to = models.ForeignKey(BillTo, on_delete=models.CASCADE, blank=True, null=True)
-    bill_by = models.ForeignKey(BillBy, on_delete=models.CASCADE, blank=True, null=True)
+    bill_to = models.ForeignKey(BillTo, on_delete=models.CASCADE)
+    bill_by = models.ForeignKey(BillBy, on_delete=models.CASCADE)
     remarks = models.CharField(max_length=255, default='', blank=True, null=True)
     bw = models.CharField(max_length=255, default='A', choices=BW_CHOICES)
     frieght = models.IntegerField(default=0)
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
 
 class BillItem(models.Model):
-    bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE)
+    bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE, blank=True, null=True)
     item = models.CharField(max_length=255)
     rate = models.FloatField()
     qty = models.FloatField()

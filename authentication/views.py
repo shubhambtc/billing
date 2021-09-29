@@ -38,6 +38,15 @@ def get_invoice(x):
     b.save()
     return spli
 
+def get_invoice_s(x, y):
+    b = BillBy.objects.get(pk=x)
+    stri = b.name.split(" ")
+    strip = [ele[0] for ele in stri]
+    spli = "".join(strip) 
+    spli = spli + "/2021-2022/"
+    spli += str(y).zfill(3)
+    return spli
+
     
 def get_page_pdf(pdf, biltype,pk):
     bill = BillDetail.objects.get(pk=pk)
@@ -108,21 +117,37 @@ def attach_current_info(data, current_info, model):
         attach_to_list(data, current_info, model)
 class Bill(APIView):
     def get(self, request, pk):
-        # try:
+        try:
             gen_pdf(pk)
             bill=BillDetail.objects.get(pk=pk)
             local_file = open('invoices.pdf', 'rb')
             bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
             serialize = BillDetailSerializer(bill)
             return Response(serialize.data)
-        # except:
-        #     return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BillInvoice(APIView):
     def put(self, request, *args, **kwargs):
-        inv = get_invoice(request.data['bill']['bill_by'])
-        request.data['bill']['invoice_no'] = inv
+        errors = {}
+        serial = BillSerializer(data = request.data['bill'])
+        if not serial.is_valid():
+            errors.update(dict(serial.errors))
+        data = request.data['billitem']
+        for e in data:
+            serializer = BillItemSerializer(data=e)
+            if not serializer.is_valid():
+                errors.update(dict(serializer.errors))
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        if request.data['bill']['bw'] == "A":
+            inv = get_invoice(request.data['bill']['bill_by'])
+            request.data['bill']['invoice_no'] = inv
+        else:
+            inv = get_invoice_s(request.data['bill']['bill_by'],request.data['bill']['invoice_no'] )
+            print(inv)
+            request.data['bill']['invoice_no'] = inv   
         serial = BillSerializer(data = request.data['bill'])
         if serial.is_valid():
             serial.save()
@@ -130,14 +155,10 @@ class BillInvoice(APIView):
             data = request.data['billitem']
             for d in data:
                 d['bill_detail'] = serial['id']
-        else:
-            return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST)
         for e in data:
             serializer = BillItemSerializer(data=e)
             if serializer.is_valid():
                 serializer.save()
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         pdf = gen_pdf(serial['id'])
         bill=BillDetail.objects.get(pk=serial['id'])
         local_file = open('invoices.pdf', 'rb')

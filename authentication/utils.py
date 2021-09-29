@@ -144,7 +144,7 @@ class PDF(FPDF):
         self.cell(40,7.5, "Vehicle No:", 0, 0,'L')
         self.set_xy(155, 84.5)
         self.set_font('Arial', '', 12)
-        self.cell(40,7.5, vehicle, 0, 0,'L')
+        self.cell(40,7.5, vehicle if vehicle else "", 0, 0,'L')
     
     #bill to ship to details
     def set_detail(self, bill_to):
