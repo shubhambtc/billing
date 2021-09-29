@@ -463,10 +463,10 @@ class PDF(FPDF):
         self.cell(20,10,"Total", 0,0,'C')
         self.set_xy(125, 185)
         self.set_font('Arial', 'B', 12)
-        self.cell(20,10,str(qty), 0,0,'C')
+        self.cell(20,10,str(round(qty,2)), 0,0,'C')
         self.set_xy(105, 185)
         self.set_font('Arial', 'B', 12)
-        self.cell(20,10,str(uom), 0,0,'C')
+        self.cell(20,10,str(round(uom,2)), 0,0,'C')
     
     def remarks(self,remarks):
         if remarks:
