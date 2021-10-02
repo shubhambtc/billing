@@ -60,3 +60,13 @@ class BillItem(models.Model):
     qty = models.FloatField()
     uom = models.IntegerField(blank=True, default=100)
     po_number = models.CharField(max_length=255, default="", blank=True)
+
+class Dara(models.Model):
+    bill_to = models.ForeignKey(BillTo,on_delete=models.CASCADE)
+    purchase_date = models.DateField()
+    loading_date = models.DateField()
+    vehicle_no = models.CharField(max_length=255, default="", blank=True)
+    dara = models.JSONField(default=list, blank=True, null=True)
+    weight = models.FloatField()
+    rate = models.FloatField()
+    

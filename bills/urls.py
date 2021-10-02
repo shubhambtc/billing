@@ -1,7 +1,7 @@
 from django.urls import path, include
 from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill
-from .models import Expense, BillTo, BillBy, BillDetail, BillItem
-from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer
+from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
+from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer
 urlpatterns = [
     path('expense/<int:pk>', ResourceAPIView.as_view(
         model = Expense,
@@ -44,5 +44,14 @@ urlpatterns = [
         model = BillItem,
         resource_serializer = BillItemSerializer
     )),
+    path('dara/<int:pk>', ResourceAPIView.as_view(
+        model = Dara,
+        resource_serializer = DaraSerializer
+    )),
+    path('dara-list/<str:page>',GetListView.as_view(
+        model = Dara,
+        resource_serializer = DaraSerializer
+    )),
+
     path('bill-get/<int:pk>',Bill.as_view()),
 ]

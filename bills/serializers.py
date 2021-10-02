@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib. auth import get_user_model,authenticate
 from django.contrib.auth.models import Permission
 from django.contrib.auth import authenticate
-from .models import Expense, BillTo, BillBy, BillDetail, BillItem
+from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
@@ -46,7 +46,10 @@ class BillSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
+class DaraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dara
+        fields = '__all__'
 class BillDetailinsideSerializer(serializers.ModelSerializer):
     bill_to = BillToExpenseSerializer()
     bill_by = BillBySerializer()
