@@ -11,6 +11,8 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from django.core.files import File
 import time
+import csv
+from django.http import HttpResponse
 from datetime import date
 from rest_framework import generics, mixins
 from rest_framework import filters
@@ -25,6 +27,156 @@ from .renderer import UserJSONRenderer
 from bills.models import BillTo, BillItem, BillBy, Expense, BillDetail
 from bills.serializers import ExpenseSerializer, BillDetailSerializer, BillDetailinsideSerializer, BillItemSerializer, BillSerializer
 from rest_framework.renderers import BaseRenderer
+def getbillrowwithexpense(bill):
+    billitems = bill.billitem_set.all()
+    amount = 0
+    bags=0 
+    weight=0
+    for billitem in billitems:
+        amount += billitem.qty*billitem.rate
+        bags += billitem.uom
+        weight += billitem.qty
+    expenses = bill.bill_to.expense
+    if expenses:
+        tulai = round(float(expenses.tulai)*amount/100,2)
+        dharmada = round(float(expenses.dharmada)*amount/100,2)
+        wages = round(float(expenses.wages)*weight,2)
+        sutli = round(float(expenses.sutli)*bags,2)
+        loading_charges = round(float(expenses.loading_charges)*bags,2)
+        vikas_shulk = round(float(expenses.vikas_shulk)*amount/100,2)
+        mandi_shulk = round(float(expenses.mandi_shulk)*amount/100,2)
+        bardana = round(float(expenses.bardana)*bags,2)
+        others = round(float(expenses.others),2)
+    else:
+        tulai = 0
+        dharmada = 0
+        wages = 0
+        sutli = 0
+        loading_charges = 0
+        vikas_shulk = 0
+        mandi_shulk = 0
+        bardana = 0
+        others = 0
+    freight = bill.frieght
+    if expenses:
+        comission = round(float(expenses.commision)*amount/100,2)
+    else:
+        comission=0
+    return {
+        "bill_no" : bill.invoice_no,
+        "vehicle_no": bill.vehicle_no,
+        "party" : bill.bill_to.name,
+        "date":bill.date,
+        "bags":bags,
+        "qty": weight,
+        "amount":amount,
+        "comission":comission,
+        "tulai" :tulai,
+        "dharmada":dharmada,
+        "wages" :wages,
+        "sutli" :sutli,
+        "loading_charges" :loading_charges,
+        "vikas_shulk" :vikas_shulk,
+        "mandi_shulk" :mandi_shulk,
+        "bardana" :bardana,
+        "others" :others,
+        "freight":freight,
+    }
+class getbillwithexpensecsv(APIView):
+    def get(self,request,pk):
+        Bills = BillDetail.objects.filter(bill_by=pk)
+        getrows = []
+        for bill in Bills:
+            getrow = getbillrowwithexpense(bill)
+            getrows.append(getrow)
+        if getrows:
+            fields_header = getrows[0].keys()
+        else:
+            fields_header = []
+        filename = "{0}.csv".format("bill-details")
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="projects.csv"'},
+        )
+        writer = csv.DictWriter(response,fieldnames = fields_header)
+        writer.writeheader()
+        writer.writerows(getrows)
+        return response
+def getbillrow(bill):
+    billitems = bill.billitem_set.all()
+    amount = 0
+    bags=0 
+    weight=0
+    for billitem in billitems:
+        amount += billitem.qty*billitem.rate
+        bags += billitem.uom
+        weight += billitem.qty
+    expenses = bill.bill_to.expense
+    if expenses:
+        act_amt = amount + round(float(expenses.tulai)*amount/100,2) + round(float(expenses.dharmada)*amount/100,2) +round(float(expenses.sutli)*bags,2) + round(float(expenses.loading_charges)*bags,2) + round(float(expenses.vikas_shulk)*amount/100,2)+ round(float(expenses.mandi_shulk)*amount/100,2) + round(float(expenses.bardana)*bags,2) + round(float(expenses.others),2)
+        if bill.bill_to.id == 4:
+            act_amt+=round(float(expenses.wages)*bags,2)
+        else:
+            act_amt+=round(float(expenses.wages)*weight,2)
+    else:
+        act_amt = amount
+    freight = bill.frieght
+    if expenses:
+        comission = round(float(expenses.commision)*amount/100,2)
+    else:
+        comission=0
+    return {
+        "bill_no" : bill.invoice_no,
+        "vehicle_no": bill.vehicle_no,
+        "party" : bill.bill_to.name,
+        "date":bill.date,
+        "bags":bags,
+        "qty": weight,
+        "amount":amount,
+        "act_amt": act_amt,
+        "comission":comission,
+        "freight":freight,
+        "total": act_amt+comission+freight
+    }
+class getbillwisecsv(APIView):
+    def get(self,request,pk):
+        Bills = BillDetail.objects.filter(bill_by=pk)
+        getrows = []
+        for bill in Bills:
+            getrow = getbillrow(bill)
+            getrows.append(getrow)
+        if getrows:
+            fields_header = getrows[0].keys()
+        else:
+            fields_header = []
+        filename = "{0}.csv".format("projects")
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="projects.csv"'},
+        )
+        writer = csv.DictWriter(response,fieldnames = fields_header)
+        writer.writeheader()
+        writer.writerows(getrows)
+        return response
+class getcsv(APIView):
+    def get(self, request, pk):
+            Bills = BillDetail.objects.filter(bill_to=pk)
+            billitem = BillItem.objects.filter(bill_detail__in=Bills)
+            projects = BillItemSerializer(billitem, many=True)
+            projects = projects.data
+            if projects:
+                fields_header = projects[0].keys()
+            else:
+                fields_header = []
+            filename = "{0}.csv".format("projects")
+            response = HttpResponse(
+                content_type='text/csv',
+                headers={'Content-Disposition': 'attachment; filename="projects.csv"'},
+            )
+            writer = csv.DictWriter(response,fieldnames = fields_header)
+            writer.writeheader()
+            writer.writerows(projects)
+            return response
 
 def get_invoice(x):
     b = BillBy.objects.get(pk=x)
@@ -120,15 +272,15 @@ def attach_current_info(data, current_info, model):
         attach_to_list(data, current_info, model)
 class Bill(APIView):
     def get(self, request, pk):
-        try:
+       # try:
             gen_pdf(pk)
             bill=BillDetail.objects.get(pk=pk)
             local_file = open('invoices.pdf', 'rb')
             bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
             serialize = BillDetailSerializer(bill)
             return Response(serialize.data)
-        except:
-            return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+       # except:
+        #    return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BillInvoice(APIView):

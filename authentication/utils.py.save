@@ -193,7 +193,7 @@ class PDF(FPDF):
         self.cell(20,6,"GSTIN :", 0, 0,'L')
         self.set_xy(35,124)
         self.set_font('Arial', '', 12)
-        x = bill_to.gstin.upper() if bill_to.gstin else ""
+       
         self.cell(70,6,x, 0, 0,'L')
 
     def shipped_to_diff(self, bill_to):
@@ -202,13 +202,13 @@ class PDF(FPDF):
         self.cell(20,6,"Name :", 0, 0,'L')
         self.set_xy(125,100)
         self.set_font('Arial', '', 12)
-        self.cell(70,6,"White Agro Poultry Farm", 0, 0,'L')
+        self.cell(70,6,"Siddhu Boiler & Breeding Farm", 0, 0,'L')
         self.set_xy(105,106)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"Address :", 0, 0,'L')
         self.set_xy(125,106)
         self.set_font('Arial', '', 12)
-        self.multi_cell(70,6,"Vill Chajju Majra(Shahzadpur)", 0, 0,'L')
+        self.multi_cell(70,6,"Shahabad", 0, 0,'L')
         self.set_xy(105,118)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"State :", 0, 0,'L')
@@ -257,8 +257,7 @@ class PDF(FPDF):
         self.cell(20,6,"GSTIN :", 0, 0,'L')
         self.set_xy(125,124)
         self.set_font('Arial', '', 12)
-        x = bill_to.gstin.upper() if bill_to.gstin else " "
-        self.cell(70,6,x, 0, 0,'L')
+        self.cell(70,6,bill_to.gstin.upper(), 0, 0,'L')
         self.set_thead()
    
 
