@@ -6,6 +6,8 @@ BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
     ('MandiOut','MandiOut')
 ]
+
+
 class Expense(models.Model):
     tulai = models.FloatField(null=True, blank=True, default=0)
     dharmada = models.FloatField(null=True, blank=True, default=0)
@@ -51,7 +53,10 @@ class BillDetail(models.Model):
     bw = models.CharField(max_length=255, default='A', choices=BW_CHOICES)
     frieght = models.IntegerField(default=0)
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
-    expenses = models.JSONField(default=dict, blank=True, null=True)
+    expenses = models.JSONField(default=dict)
+    shipto = models.JSONField(default=dict)
+    gstdetail = models.JSONField(default=dict)
+    is_active = models.BooleanField(default=True)
 
 class BillItem(models.Model):
     bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE, blank=True, null=True)
@@ -63,10 +68,9 @@ class BillItem(models.Model):
 
 class Dara(models.Model):
     bill_to = models.ForeignKey(BillTo,on_delete=models.CASCADE)
-    purchase_date = models.DateField()
-    loading_date = models.DateField()
+    purchase_date = models.DateField(default="2021-01-01")
+    loading_date = models.DateField(default="2021-01-01")
     vehicle_no = models.CharField(max_length=255, default="", blank=True)
     dara = models.JSONField(default=list, blank=True, null=True)
     weight = models.FloatField()
     rate = models.FloatField()
-    

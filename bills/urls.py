@@ -1,5 +1,5 @@
 from django.urls import path, include
-from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv
+from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, DeleteBill,BillEdit
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
 from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer
 urlpatterns = [
@@ -57,4 +57,6 @@ urlpatterns = [
     path('bill-csv/<int:pk>',getcsv.as_view()),
     path('bill-wise-csv/<int:pk>',getbillwisecsv.as_view()),
     path('bill-wise-expense-csv/<int:pk>',getbillwithexpensecsv.as_view()),
+    path('bill-delete/<int:pk>',DeleteBill.as_view()),
+    path('bill-edit/<int:pk>',BillEdit.as_view())
 ]

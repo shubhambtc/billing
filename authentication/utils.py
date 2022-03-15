@@ -12,6 +12,9 @@ genes = {
     "wheat" : "100110",
     "mustard_seed" : "120750",
 }
+gstin = {
+    "mustard_seed":5
+}
 def round_school(x):
     i, f = divmod(x, 1)
     return int(i + ((f >= 0.5) if (x > 0) else (f > 0.5)))
@@ -57,6 +60,7 @@ def number_to_word(number):
 
 class PDF(FPDF):
     all_details = {}
+
     def side_border(self):
         self.add_page()
         self.line(15, 15, 195, 15)
@@ -100,22 +104,22 @@ class PDF(FPDF):
     def company_name(self,obj):
         self.set_font('Times', 'B', 22)
         self.set_xy(15,25)
-        self.cell(180, 15, obj.name.upper(), 0, 1, 'C')
+        self.cell(180, 15, obj['name'].upper(), 0, 1, 'C')
         self.set_font('Arial', '', 15)
         self.cell(195, 10, "Commision Agents", 0, 1, 'C')
-        self.cell(195, 10, obj.address.title(), 0, 1, 'C')
-        self.cell(195, 10, "Mob: %s             Mob: %s" % (obj.mobile1, obj.mobile2), 0, 1, 'C')
+        self.cell(195, 10, obj['address'].title(), 0, 1, 'C')
+        self.cell(195, 10, "Mob: %s             Mob: %s" % (obj['mobile1'], obj['mobile2']), 0, 1, 'C')
         self.set_xy(15,15)
         self.set_font('Arial', '', 12)
-        self.cell(50,10,"GSTIN: "+obj.gstin.upper(), 0,0,'L')
-        self.pre_authenticated(obj.name.title())
-        self.signatory(obj.name.title())
+        self.cell(50,10,"GSTIN: "+obj['gstin'].upper(), 0,0,'L')
+        self.pre_authenticated(obj['name'].title())
+        self.signatory(obj['name'].title())
         self.terms_conditions()
         bank_dict = {
-            "bank_name": obj.bank_name,
-            "bank_ifsc": obj.bank_ifsc,
-            "bank_account_no": obj.bank_account_no,
-            "bank_branch": obj.bank_branch,
+            "bank_name": obj['bank_name'],
+            "bank_ifsc": obj['bank_ifsc'],
+            "bank_account_no": obj['bank_account_no'],
+            "bank_branch": obj['bank_branch'],
         }
         self.bank_details(bank_dict)
     
@@ -153,8 +157,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(40,7.5, vehicle if vehicle else "", 0, 0,'L')
     
-    #bill to ship to details
-    def set_detail(self, bill_to):
+    def set_detail(self, bill_to,ship_to):
         self.set_font('Arial', 'B', 12)
         self.set_xy(15,92)
         self.cell(90,8,"Details of Reciever/Billed To :", 0, 0,'C')
@@ -162,107 +165,69 @@ class PDF(FPDF):
         self.set_xy(105,92)
         self.cell(90,8,"Details of consignee/Shipped To :", 0, 0,'C')
         self.billed_to(bill_to)
-        self.shipped_to(bill_to)
+        self.shipped_to(ship_to)
     
     def billed_to(self, bill_to):
         self.set_font('Arial', 'B', 12)
         self.set_xy(15,100)
         self.cell(20,6,"Name :", 0, 0,'L')
         self.set_xy(35,100)
-        if bill_to.id == 12 or bill_to.id == 16:
+        if bill_to['id'] == 12 or bill_to['id'] == 16:
             self.set_font('Arial', '', 10)
         else:
             self.set_font('Arial','',12)
-        self.cell(70,6,bill_to.name.title(), 0, 0,'L')
+        self.cell(70,6,bill_to['name'].title(), 0, 0,'L')
         self.set_xy(15,106)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"Address :", 0, 0,'L')
         self.set_xy(35,106)
         self.set_font('Arial', '', 12)
-        self.multi_cell(70,6,bill_to.address.title(), 0, 0,'L')
+        self.multi_cell(70,6,bill_to['address'].title(), 0, 0,'L')
         self.set_xy(15,118)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"State :", 0, 0,'L')
         self.set_xy(35,118)
         self.set_font('Arial', '', 12)
-        self.cell(70,6,bill_to.state.title(), 0, 0,'L')
+        self.cell(70,6,bill_to['state'].title(), 0, 0,'L')
         self.set_xy(85,118)
-        self.cell(20,6,"State Code : %s" %(bill_to.state_code), 0, 0, 'R')
+        self.cell(20,6,"State Code : %s" %(bill_to['state_code']), 0, 0, 'R')
         self.set_xy(15,124)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"GSTIN :", 0, 0,'L')
         self.set_xy(35,124)
         self.set_font('Arial', '', 12)
-        x = bill_to.gstin.upper() if bill_to.gstin else ""
+        x = bill_to['gstin'].upper() if bill_to['gstin'] else ""
         self.cell(70,6,x, 0, 0,'L')
-
-    def shipped_to_diff(self, bill_to):
-        self.set_font('Arial', 'B', 12)
-        self.set_xy(105,100)
-        self.cell(20,6,"Name :", 0, 0,'L')
-        self.set_xy(125,100)
-        self.set_font('Arial', '', 12)
-        self.cell(70,6,"White Agro Poultry Farm", 0, 0,'L')
-        self.set_xy(105,106)
-        self.set_font('Arial', 'B', 12)
-        self.cell(20,6,"Address :", 0, 0,'L')
-        self.set_xy(125,106)
-        self.set_font('Arial', '', 12)
-        self.multi_cell(70,6,"Vill Chajju Majra(Shahzadpur)", 0, 0,'L')
-        self.set_xy(105,118)
-        self.set_font('Arial', 'B', 12)
-        self.cell(20,6,"State :", 0, 0,'L')
-        self.set_xy(125,118)
-        self.set_font('Arial', '', 12)
-        self.cell(70,6,"Haryana", 0, 0,'L')
-        self.set_xy(175,118)
-        self.cell(20,6,"State Code : %s" %("06"), 0, 0, 'R')
-        self.set_xy(105,124)
-        self.set_font('Arial', 'B', 12)
-        self.cell(20,6,"GSTIN :", 0, 0,'L')
-        self.set_xy(125,124)
-        self.set_font('Arial', '', 12)
-        self.cell(70,6,"", 0, 0,'L')
-        self.set_thead()
 
     def shipped_to(self, bill_to):
         self.set_font('Arial', 'B', 12)
         self.set_xy(105,100)
         self.cell(20,6,"Name :", 0, 0,'L')
         self.set_xy(125,100)
-        if bill_to.id == 12 or bill_to.id == 16:
-            self.set_font('Arial', '', 10)
-        else:
-            self.set_font('Arial','',12)
-        self.cell(70,6,bill_to.name.title(), 0, 0,'L')
+        self.cell(70,6,bill_to['name'].title(), 0, 0,'L')
         self.set_xy(105,106)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"Address :", 0, 0,'L')
         self.set_xy(125,106)
         self.set_font('Arial', '', 12)
-        if bill_to.id == 16:
-            self.multi_cell(70,6,"Nissing",0,0,'L')
-        else:
-            self.multi_cell(70,6,bill_to.address.title(), 0, 0,'L')
+        self.multi_cell(70,6,bill_to['address'].title(), 0, 0,'L')
         self.set_xy(105,118)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"State :", 0, 0,'L')
         self.set_xy(125,118)
         self.set_font('Arial', '', 12)
-        self.cell(70,6,bill_to.state.title(), 0, 0,'L')
+        self.cell(70,6,bill_to['state'].title(), 0, 0,'L')
         self.set_xy(175,118)
-        self.cell(20,6,"State Code : %s" %(bill_to.state_code), 0, 0, 'R')
+        self.cell(20,6,"State Code : %s" %(bill_to['state_code']), 0, 0, 'R')
         self.set_xy(105,124)
         self.set_font('Arial', 'B', 12)
         self.cell(20,6,"GSTIN :", 0, 0,'L')
         self.set_xy(125,124)
         self.set_font('Arial', '', 12)
-        x = bill_to.gstin.upper() if bill_to.gstin else " "
+        x = bill_to['gstin'].upper() if bill_to['gstin'] else " "
         self.cell(70,6,x, 0, 0,'L')
         self.set_thead()
-   
 
-    #bill items start
     def set_thead(self):
         self.set_xy(15,130)
         self.set_font('Arial', 'B', 10)
@@ -289,26 +254,26 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)
         self.cell(10,10,str(s_no), 0, 0,'C')
         self.set_font('Arial', '', 12)
-        if bill_item.po_number:
+        if bill_item['po_number']:
             self.set_font('Arial', '', 12)
             self.set_xy(25,130+(8*s_no))
-            self.cell(30,10,bill_item.item.title(), 0, 0,'L')
+            self.cell(30,10,bill_item['item'].title(), 0, 0,'L')
             self.set_font('Arial', '', 10)
             self.set_xy(55,130+(8*s_no))
-            self.cell(30,10,bill_item.po_number,0,0,'R')
+            self.cell(30,10,bill_item['po_number'],0,0,'R')
         else:
             self.set_xy(25,130+(8*s_no))
-            self.cell(60,10,bill_item.item.title(), 0, 0,'C')
+            self.cell(60,10,bill_item['item'].title(), 0, 0,'C')
         self.set_xy(85,130+(8*s_no))
-        self.cell(20,10,genes[bill_item.item], 0, 0,'C')
+        self.cell(20,10,genes[bill_item['item']], 0, 0,'C')
         self.set_xy(105,130+(8*s_no))
-        self.cell(20,10,str(bill_item.uom), 0, 0,'C')
+        self.cell(20,10,str(bill_item['uom']), 0, 0,'C')
         self.set_xy(125,130+(8*s_no))
-        self.cell(20,10,str(bill_item.qty), 0, 0,'C')
+        self.cell(20,10,str(bill_item['qty']), 0, 0,'C')
         self.set_xy(145,130+(8*s_no))
-        self.cell(25,10,str(bill_item.rate), 0, 0,'C')
+        self.cell(25,10,str(bill_item['rate']), 0, 0,'C')
         self.set_xy(170,130+(8*s_no))
-        self.cell(25,10,str(round(bill_item.qty*bill_item.rate,2)), 0, 0,'C')
+        self.cell(25,10,str(round(bill_item['qty']*bill_item['rate'],2)), 0, 0,'C')
 
     def bill_items(self, bill_items):
         s_no=1
@@ -316,7 +281,7 @@ class PDF(FPDF):
         for bill_item in bill_items:
             self.bill_item(s_no,bill_item)
             s_no +=1
-            total_amt += round(bill_item.qty*bill_item.rate,2)
+            total_amt += round(bill_item['qty']*bill_item['rate'],2)
         self.all_details['total_amt'] = total_amt
         self.set_font('Arial', 'B', 12)
         self.set_xy(145, 195)
@@ -325,21 +290,19 @@ class PDF(FPDF):
         self.set_xy(170, 195)
         self.cell(25,8,str(round(total_amt,2)), 0, 1,'R')
         
-
-    #expense
     def expense(self, bags, weight,expenses):
         amount = self.all_details['total_amt']
         exp = {}
-        exp['tulai'] = round(expenses.tulai*amount/100,2) if expenses else 0
-        exp['dharmada'] = round(expenses.dharmada*amount/100,2) if expenses else 0
-        exp['wages'] = round(expenses.wages*weight,2) if expenses else 0
-        exp['sutli'] = round(expenses.sutli*bags,2) if expenses else 0
-        exp['commision'] = round(expenses.commision*amount/100,2) if expenses else 0
-        exp['loading_charges'] = round(expenses.loading_charges*bags,2) if expenses else 0
-        exp['vikas_shulk'] = round(expenses.vikas_shulk*amount/100,2) if expenses else 0
-        exp['mandi_shulk'] = round(expenses.mandi_shulk*amount/100,2) if expenses else 0
-        exp['bardana'] = round(expenses.bardana*bags,2) if expenses else 0
-        exp['others'] = round(expenses.others,2) if expenses else 0
+        exp['tulai'] = round(expenses['tulai']*amount/100,2) if expenses else 0
+        exp['dharmada'] = round(expenses['dharmada']*amount/100,2) if expenses else 0
+        exp['wages'] = round(expenses['wages']*weight,2) if expenses else 0
+        exp['sutli'] = round(expenses['sutli']*bags,2) if expenses else 0
+        exp['commision'] = round(expenses['commision']*amount/100,2) if expenses else 0
+        exp['loading_charges'] = round(expenses['loading_charges']*bags,2) if expenses else 0
+        exp['vikas_shulk'] = round(expenses['vikas_shulk']*amount/100,2) if expenses else 0
+        exp['mandi_shulk'] = round(expenses['mandi_shulk']*amount/100,2) if expenses else 0
+        exp['bardana'] = round(expenses['bardana']*bags,2) if expenses else 0
+        exp['others'] = round(expenses['others'],2) if expenses else 0
         exp['total'] = round(sum(exp.values()),2)
         self.all_details['expenses'] = exp['total']
         self.set_font('Arial', 'B', 10)

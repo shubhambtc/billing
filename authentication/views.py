@@ -6,14 +6,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import User
 from .serializers import UserSerializer
-from .utils import PDF
+from .utils import PDF, gstin
 from django.http import HttpResponse
 from django.db.models import Sum
 from django.core.files import File
 import time
 import csv
 from django.http import HttpResponse
-from datetime import date
+from datetime import date, datetime
 from rest_framework import generics, mixins
 from rest_framework import filters
 from django.db.models import Q
@@ -199,31 +199,32 @@ def get_invoice_s(x, y):
     spli += str(y).zfill(3)
     return spli
 
-    
-def get_page_pdf(pdf, biltype,pk):
-    bill = BillDetail.objects.get(pk=pk)
-    bi = bill.billitem_set.all()
-    bit = bill.billitem_set.aggregate(Sum('qty'),Sum('uom'))
+def get_page_pdf(pdf, biltype,billdetail):
+    gstdetail = billdetail['gstdetail']
+    if gstdetail:
+        pass
+    else:
+        pass
     pdf.side_border()
     pdf.mandi_in_internal_border()
-    pdf.company_name(bill.bill_by)
+    pdf.company_name(billdetail['bill_by'])
     pdf.set_bill_type(biltype)
-    pdf.set_date_vehicle(bill.invoice_no, bill.date.strftime("%d %b %Y "), bill.vehicle_no)
-    pdf.set_detail(bill.bill_to)
-    pdf.bill_items(bi)
-    pdf.remarks(bill.remarks)
-    if bill.bill_to.id ==4:
-        pdf.expense(bags=bit['uom__sum'], weight=bit['uom__sum'], expenses=bill.bill_to.expense)
+    pdf.set_date_vehicle(billdetail['invoice_no'], billdetail['date'], billdetail['vehicle_no'])
+    pdf.set_detail(billdetail['bill_to'],billdetail['shipto'])
+    pdf.bill_items(billdetail['bill_items'])
+    pdf.remarks(billdetail['remarks'])
+    if billdetail['bill_to']['id'] ==4:
+        pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_uom'], expenses=billdetail['expenses'])
     else:
-        pdf.expense(bags=bit['uom__sum'], weight=bit['qty__sum'], expenses=bill.bill_to.expense)
-    pdf.final_fun(bill.frieght)
-    pdf.total_s(bit['qty__sum'],bit['uom__sum'])
+        pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_qty'], expenses=billdetail['expenses'])
+    pdf.final_fun(billdetail['frieght'])
+    pdf.total_s(billdetail['total_qty'],billdetail['total_uom'])
 
-def gen_pdf(pk):
+def gen_pdf(billdetail):
     pdf = PDF()
-    get_page_pdf(pdf, 'Original',pk)
-    get_page_pdf(pdf, 'Duplicate',pk)
-    get_page_pdf(pdf, 'Triplicate',pk)
+    get_page_pdf(pdf, 'Original',billdetail)
+    get_page_pdf(pdf, 'Duplicate',billdetail)
+    get_page_pdf(pdf, 'Triplicate',billdetail)
     pdf.output('invoices.pdf','F')
     return pdf
 
@@ -270,18 +271,74 @@ def attach_current_info(data, current_info, model):
         attach_to_dict(data, current_info, model)
     elif isinstance(data, list):
         attach_to_list(data, current_info, model)
+
+def check_cgst_sgst(gstin1, gstin2):
+    return gstin1[:2]==gstin2[:2]
+
+def get_gstin(data):
+    cgst = 0
+    igst = 0
+    sgst = 0
+    taxable_value=0
+    flag = check_cgst_sgst(data['bill_by']['gstin'],data['bill_to']['gstin'])
+    for billitem in data['bill_items']:
+        try:
+            percent = gstin[billitem['item']]
+            taxable_value += round(billitem['qty']*billitem['rate'],2)
+            if flag:
+                cgst += round(percent/2*billitem['qty']*billitem['rate']/100,2)
+                sgst += round(percent/2*billitem['qty']*billitem['rate']/100,2)
+            else:
+                igst +=round(percent*billitem['qty']*billitem['rate']/100,2)
+        except:
+            pass
+    gstin1 = {
+        "cgst":cgst,
+        "sgst":sgst,
+        "igst":igst,
+        "taxable_value":taxable_value
+    }
+    return gstin1
+
 class Bill(APIView):
     def get(self, request, pk):
-       # try:
-            gen_pdf(pk)
-            bill=BillDetail.objects.get(pk=pk)
-            local_file = open('invoices.pdf', 'rb')
-            bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
-            serialize = BillDetailSerializer(bill)
-            return Response(serialize.data)
-       # except:
-        #    return Response({'status':"Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        billdetail = BillDetail.objects.get(pk=pk)
+        billdetail = BillDetailSerializer(billdetail).data
+        get_gstin(dict(billdetail))
+        pdf = gen_pdf(dict(billdetail))
+        bill=BillDetail.objects.get(pk=pk)
+        local_file = open('invoices.pdf', 'rb')
+        bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
+        serialize = BillDetailSerializer(bill)
+        return Response(serialize.data)
 
+def get_expenses(b):
+    if b.expense:
+        expense = b.expense
+        expenses = dict(ExpenseSerializer(expense).data)
+    else:
+        expenses = {
+            'tulai':0,
+            'dharmada':0,
+            'wages':0,
+            'mandi_shulk':0,
+            'sutli':0,
+            'commision':0,
+            'loading_charges':0,
+            'vikas_shulk':0,
+            'others':0,
+            'bardana':0,
+        }
+    return expenses
+
+def shiptocopy(bill_to):
+    return {
+        "name": bill_to.name,
+        "gstin": bill_to.gstin,
+        "address": bill_to.address,
+        "state": bill_to.state,
+        "state_code": bill_to.state_code
+    }
 
 class BillInvoice(APIView):
     def put(self, request, *args, **kwargs):
@@ -301,8 +358,11 @@ class BillInvoice(APIView):
             request.data['bill']['invoice_no'] = inv
         else:
             inv = get_invoice_s(request.data['bill']['bill_by'],request.data['bill']['invoice_no'] )
-            print(inv)
             request.data['bill']['invoice_no'] = inv   
+        bill_to = BillTo.objects.get(pk=request.data['bill']['bill_to'])
+        request.data['bill']['expenses'] = get_expenses(bill_to)
+        if not request.data['bill']['shipto']['name']:
+            request.data['bill']['shipto'] = shiptocopy(bill_to)
         serial = BillSerializer(data = request.data['bill'])
         if serial.is_valid():
             serial.save()
@@ -314,11 +374,15 @@ class BillInvoice(APIView):
             serializer = BillItemSerializer(data=e)
             if serializer.is_valid():
                 serializer.save()
-        pdf = gen_pdf(serial['id'])
-        bill=BillDetail.objects.get(pk=serial['id'])
+        billdetail = BillDetail.objects.get(pk=serial['id'])
+        billdetails = BillDetail.objects.get(pk=serial['id'])
+        billdetail = BillDetailSerializer(billdetail).data
+        billdetails.gstdetail = get_gstin(dict(billdetail))
+        billdetails.save()
+        pdf = gen_pdf(dict(billdetail))
         local_file = open('invoices.pdf', 'rb')
-        bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
-        serialize = BillDetailSerializer(bill)
+        billdetails.invoice.save('{}.pdf'.format("invoice"), File(local_file))
+        serialize = BillDetailSerializer(billdetails)
         return Response(serialize.data)
 
 class ResourceAPIView(APIView):
@@ -343,7 +407,34 @@ class ResourceAPIView(APIView):
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
             return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = self.resource_serializer(resource_item, data=request.data, partial=True)
+        if self.model == BillTo:
+            if request.data['bill_to']['bill_type'] == "MandiIn":
+                if request.data['expense']['id'] == 0:
+                    serial = ExpenseSerializer(data = request.data['expense'])
+                    if serial.is_valid():
+                        serial.save()
+                        serial = serial.data
+                        data = request.data['bill_to']
+                        data['expense'] = serial['id']
+                    else:
+                        return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST) 
+                else:
+                    # try:
+                    resource = Expense.objects.get(pk=request.data['expense']['id'])
+                    # except:
+                        # return Response({"error":"Expense does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+                    serial = ExpenseSerializer(resource, data=request.data['expense'], partial=True)
+                    if serial.is_valid():
+                        serial.save()
+                        data = request.data['bill_to']
+                    else:
+                        return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST) 
+            else:
+                data = request.data['bill_to']
+                data['expense'] = None
+        else:
+            data = request.data
+        serializer = self.resource_serializer(resource_item, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -352,7 +443,6 @@ class ResourceAPIView(APIView):
     def put(self, request, pk):
         if self.model == BillTo:
             if request.data['bill_to']['bill_type'] == "MandiIn":
-                print("1")
                 serial = ExpenseSerializer(data = request.data['expense'])
                 if serial.is_valid():
                     serial.save()
@@ -563,3 +653,81 @@ class ChangePasswordView(APIView):
         return Response({"success": True}, status=status.HTTP_201_CREATED)
 
 
+class BillEdit(APIView):
+    permission_classes=(AllowAny,)
+    def patch(self, request,pk):
+        errors = {}
+        billitems =request.data['billitems']
+        newbillitems =request.data['newbillitems']
+        deleteitem = request.data['deletebillitem']
+        try:
+            resource_item = BillDetail.objects.get(pk=pk)
+        except BillDetail.DoesNotExist:
+            return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            del request.data['bill']['date']
+        except:
+            pass
+        try:
+            del request.data['bill']['bill_to']
+        except:
+            pass
+        try:
+            del request.data['bill']['bill_by']
+        except:
+            pass
+        serializer = BillSerializer(resource_item, data=request.data['bill'], partial=True)
+        if not serializer.is_valid():
+            errors.update(dict(serializer.errors))
+        for billitem in billitems:
+            serial = BillItemSerializer(data=billitem, partial=True)
+            if not serial.is_valid():
+                errors.update(dict(serial.errors))
+        for newbillitem in newbillitems:
+            ser = BillItemSerializer(data=newbillitem)
+            if not ser.is_valid():
+                errors.update(dict(ser.errors))
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        for billitem in billitems:
+            try:
+                resource = BillItem.objects.get(pk=billitem['id'])
+            except BillItem.DoesNotExist:
+                return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            serial = BillItemSerializer(resource, data=billitem, partial=True)
+            if serial.is_valid():
+                serial.save()
+        for newbillitem in newbillitems:
+            newbillitem['bill_detail'] = serializer.data['id']
+            ser = BillItemSerializer(data=newbillitem)
+            if ser.is_valid():
+                ser.save()
+        BillItem.objects.filter(id__in=deleteitem).delete()
+        return Response({"status":"done"})
+class DeleteBill(APIView):
+    permission_classes = (AllowAny,)  
+    def delete(self, request,pk):
+        try:
+            resource_item = BillDetail.objects.get(pk=pk)
+        except self.model.DoesNotExist:
+            return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
+        last_bill = BillDetail.objects.filter(bill_by=resource_item.bill_by).last()
+        if last_bill.id == resource_item.id:
+            billby = BillBy.objects.get(pk=resource_item.bill_by.id)
+            billby.invoices_no=billby.invoices_no-1
+            billby.save()
+            resource_item.delete()
+            return Response({'message': 'The resource is deleted successfully!'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message":"This bill can not be deleted"},status=status.HTTP_400_BAD_REQUEST)
+class CancelBill(APIView):
+    permission_classes = (AllowAny,)
+    def patch(self, request,pk):
+        try:
+            resource_item = BillDetail.objects.get(pk=pk)
+        except self.model.DoesNotExist:
+            return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
+        resource_item.is_active = False
+        resource_item.save()
+        return Response({"status":"updated successfully"})
