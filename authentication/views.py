@@ -731,3 +731,13 @@ class CancelBill(APIView):
         resource_item.is_active = False
         resource_item.save()
         return Response({"status":"updated successfully"})
+
+class GetDataUpdated(APIView):
+    permission_classes=(AllowAny,)
+    def patch(self,request):
+        b = BillDetail.objects.all()
+        for a in b:
+            a.shipto= shiptocopy(a.bill_to)
+            a.expenses= get_expenses(a.bill_to)
+            a.save()
+        return Response("done")
