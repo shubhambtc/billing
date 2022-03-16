@@ -203,6 +203,7 @@ class PDF(FPDF):
         self.set_font('Arial', 'B', 12)
         self.set_xy(105,100)
         self.cell(20,6,"Name :", 0, 0,'L')
+        self.set_font('Arial', '', 12)
         self.set_xy(125,100)
         self.cell(70,6,bill_to['name'].title(), 0, 0,'L')
         self.set_xy(105,106)

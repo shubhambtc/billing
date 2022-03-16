@@ -304,7 +304,6 @@ class Bill(APIView):
     def get(self, request, pk):
         billdetail = BillDetail.objects.get(pk=pk)
         billdetail = BillDetailSerializer(billdetail).data
-        get_gstin(dict(billdetail))
         pdf = gen_pdf(dict(billdetail))
         bill=BillDetail.objects.get(pk=pk)
         local_file = open('invoices.pdf', 'rb')
@@ -377,7 +376,6 @@ class BillInvoice(APIView):
         billdetail = BillDetail.objects.get(pk=serial['id'])
         billdetails = BillDetail.objects.get(pk=serial['id'])
         billdetail = BillDetailSerializer(billdetail).data
-        billdetails.gstdetail = get_gstin(dict(billdetail))
         billdetails.save()
         pdf = gen_pdf(dict(billdetail))
         local_file = open('invoices.pdf', 'rb')
