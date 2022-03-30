@@ -32,6 +32,15 @@ class BillItemSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class BillDetailsSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='bill_by.name')
+    party_name = serializers.CharField(source='bill_to.name')
+    bill_items = BillItemSerializer(source='billitem_set', many=True) 
+
+    class Meta:
+        model = BillDetail
+        fields = '__all__'
+
 class BillDetailSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='bill_by.name')
     party_name = serializers.CharField(source='bill_to.name')

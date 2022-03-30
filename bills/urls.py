@@ -1,7 +1,7 @@
 from django.urls import path, include
 from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, DeleteBill,BillEdit, GetDataUpdated
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
-from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer
+from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer, BillDetailsSerializer
 urlpatterns = [
     path('expense/<int:pk>', ResourceAPIView.as_view(
         model = Expense,
@@ -33,7 +33,7 @@ urlpatterns = [
     )),
     path('bill-detail-list/<str:page>',GetListView.as_view(
         model = BillDetail,
-        resource_serializer = BillDetailSerializer
+        resource_serializer = BillDetailsSerializer
     )),
     path('bill-create', BillInvoice.as_view()),
     path('bill-item/<int:pk>', ResourceAPIView.as_view(

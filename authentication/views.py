@@ -662,18 +662,6 @@ class BillEdit(APIView):
             resource_item = BillDetail.objects.get(pk=pk)
         except BillDetail.DoesNotExist:
             return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            del request.data['bill']['date']
-        except:
-            pass
-        try:
-            del request.data['bill']['bill_to']
-        except:
-            pass
-        try:
-            del request.data['bill']['bill_by']
-        except:
-            pass
         serializer = BillSerializer(resource_item, data=request.data['bill'], partial=True)
         if not serializer.is_valid():
             errors.update(dict(serializer.errors))
