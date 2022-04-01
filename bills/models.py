@@ -44,6 +44,7 @@ class BillBy(models.Model):
     bank_branch = models.CharField(max_length=255)
     invoices_no = models.IntegerField(default=0,null=True, blank=True)
     invoice_nos = models.JSONField(default=dict)
+    sign = models.ImageField(upload_to="sign", blank=True,null=True)
 BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255, blank=True, null=True)

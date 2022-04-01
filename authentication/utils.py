@@ -112,8 +112,8 @@ class PDF(FPDF):
         self.set_xy(15,15)
         self.set_font('Arial', '', 12)
         self.cell(50,10,"GSTIN: "+obj['gstin'].upper(), 0,0,'L')
-        self.pre_authenticated(obj['name'].title())
-        self.signatory(obj['name'].title())
+        self.pre_authenticated(obj['name'].title(),obj['sign'])
+        self.signatory(obj['name'].title(),obj['sign'])
         self.terms_conditions()
         bank_dict = {
             "bank_name": obj['bank_name'],
@@ -409,22 +409,24 @@ class PDF(FPDF):
         self.set_font('Arial', '', 10)
         self.cell(20,4,"Bank Branch : "+bank_details['bank_branch'], 0,0,'L')
     
-    def pre_authenticated(self, company_name):
+    def pre_authenticated(self, company_name,sign):
         self.set_xy(80,252)
         self.cell(55,5,"Pre Authenticated", 0,0,'C')
         self.set_xy(80,257)
         self.set_font('Times', 'B', 12)
         self.cell(55,10,company_name, 0,0,'C')
+        self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/"+sign, x = 83, y = 265, w = 49, h = 7, type = 'JPG', link = '')
         self.set_xy(80,274)
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Prop./Auth. Signatory", 0,0,'C')
     
-    def signatory(self, company_name):
+    def signatory(self, company_name,sign):
         self.set_xy(135,252)
         self.cell(60,5,"Certified and Verified", 0,0,'C')
         self.set_xy(135,257)
         self.set_font('Times', 'B', 14)
         self.cell(60,10,company_name, 0,0,'C')
+        self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/" + sign, x = 140, y = 265, w = 49, h = 7, type = 'JPG', link = '')
         self.set_xy(135,274)
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Authorised Signatory", 0,0,'C')
