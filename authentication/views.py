@@ -714,10 +714,17 @@ class DeleteBill(APIView):
             resource_item = BillDetail.objects.get(pk=pk)
         except self.model.DoesNotExist:
             return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
-        last_bill = BillDetail.objects.filter(bill_by=resource_item.bill_by).last()
+        last_bill = BillDetail.objects.filter(bill_by=resource_item.bill_by, bw="A").last()
         if last_bill.id == resource_item.id:
             billby = BillBy.objects.get(pk=resource_item.bill_by.id)
-            billby.invoices_no=billby.invoices_no-1
+            date = resource_item.date
+            print(date.year)
+            print(date.month)
+            if date.month>3:
+                year=str(date.year) + "-" + str(date.year+1)
+            else:
+                year=str(date.year-1) + "-" + str(date.year)
+            billby.invoice_nos[year]=billby.invoice_nos[year]-1
             billby.save()
             resource_item.delete()
             return Response({'message': 'The resource is deleted successfully!'}, status=status.HTTP_201_CREATED)
