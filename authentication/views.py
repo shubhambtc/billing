@@ -184,7 +184,7 @@ def get_invoice(x,y):
     strip = [ele[0] for ele in stri]
     stri = y.split("-")
     stripa= [int(ele) for ele in stri]
-    if stripa[1]>4:
+    if stripa[1]>3:
         year=stri[0]+"-"+str(int(stri[0])+1)
     else:
         year=str(int(stri[0])-1) + "-" + stri[0]
@@ -206,7 +206,7 @@ def get_invoice_s(x, y,z):
     strip = [ele[0] for ele in stri]
     stri = z.split("-")
     stripa= [int(ele) for ele in stri]
-    if stripa[1]>4:
+    if stripa[1]>3:
         year=stri[0]+"-"+str(int(stri[0])+1)
     else:
         year=str(int(stri[0])-1) + "-" + stri[0]
