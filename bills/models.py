@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
 from jsonfield import JSONField
@@ -42,6 +43,7 @@ class BillBy(models.Model):
     bank_ifsc = models.CharField(max_length=255)
     bank_branch = models.CharField(max_length=255)
     invoices_no = models.IntegerField(default=0,null=True, blank=True)
+    invoice_nos = models.JSONField(default=dict)
 BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255, blank=True, null=True)
@@ -55,6 +57,7 @@ class BillDetail(models.Model):
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
     expenses = models.JSONField(default=dict)
     shipto = models.JSONField(default=dict)
+    
     gstdetail = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
 

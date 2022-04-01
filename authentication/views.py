@@ -178,24 +178,40 @@ class getcsv(APIView):
             writer.writerows(projects)
             return response
 
-def get_invoice(x):
+def get_invoice(x,y):
     b = BillBy.objects.get(pk=x)
     stri = b.name.split(" ")
     strip = [ele[0] for ele in stri]
-    bill_count = b.invoices_no +1
+    stri = y.split("-")
+    stripa= [int(ele) for ele in stri]
+    if stripa[1]>4:
+        year=stri[0]+"-"+str(int(stri[0])+1)
+    else:
+        year=str(int(stri[0])-1) + "-" + stri[0]
+    try:
+        bill_count = b.invoice_nos[year] +1
+    except:
+        bill_count = 1
     spli = "".join(strip) 
-    spli = spli + "/2021-2022/"
+    spli = spli + "/" + year + "/"
     spli += str(bill_count).zfill(3)
-    b.invoices_no=bill_count
+    b.invoice_nos[year]=bill_count
     b.save()
+    print(spli)
     return spli
 
-def get_invoice_s(x, y):
+def get_invoice_s(x, y,z):
     b = BillBy.objects.get(pk=x)
     stri = b.name.split(" ")
     strip = [ele[0] for ele in stri]
+    stri = z.split("-")
+    stripa= [int(ele) for ele in stri]
+    if stripa[1]>4:
+        year=stri[0]+"-"+str(int(stri[0])+1)
+    else:
+        year=str(int(stri[0])-1) + "-" + stri[0]
     spli = "".join(strip) 
-    spli = spli + "/2021-2022/"
+    spli = spli + "/" + year + "/"
     spli += str(y).zfill(3)
     return spli
 
@@ -353,10 +369,10 @@ class BillInvoice(APIView):
         if errors:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
         if request.data['bill']['bw'] == "A":
-            inv = get_invoice(request.data['bill']['bill_by'])
+            inv = get_invoice(request.data['bill']['bill_by'],request.data['bill']['date'])
             request.data['bill']['invoice_no'] = inv
         else:
-            inv = get_invoice_s(request.data['bill']['bill_by'],request.data['bill']['invoice_no'] )
+            inv = get_invoice_s(request.data['bill']['bill_by'],request.data['bill']['invoice_no'],request.data['bill']['date'])
             request.data['bill']['invoice_no'] = inv   
         bill_to = BillTo.objects.get(pk=request.data['bill']['bill_to'])
         request.data['bill']['expenses'] = get_expenses(bill_to)
@@ -720,10 +736,12 @@ class CancelBill(APIView):
 
 class GetDataUpdated(APIView):
     permission_classes=(AllowAny,)
-    def patch(self,request):
-        b = BillDetail.objects.all()
+    def get(self,request):
+        b = BillBy.objects.all()
         for a in b:
-            a.shipto= shiptocopy(a.bill_to)
-            a.expenses= get_expenses(a.bill_to)
+            try:
+                print(a.invoice_nos["2021-2022"])
+            except:
+                a.invoice_nos["2021-2022"]= a.invoices_no
             a.save()
         return Response("done")
