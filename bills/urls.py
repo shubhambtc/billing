@@ -33,7 +33,9 @@ urlpatterns = [
     )),
     path('bill-detail-list/<str:page>',GetListView.as_view(
         model = BillDetail,
-        resource_serializer = BillDetailsSerializer
+        resource_serializer = BillDetailsSerializer,
+        search_fields=["invoice_no"],
+        search_fields_bill = ["invoice_no","vehicle_no"]
     )),
     path('bill-create', BillInvoice.as_view()),
     path('bill-item/<int:pk>', ResourceAPIView.as_view(

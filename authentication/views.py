@@ -17,7 +17,7 @@ from datetime import date, datetime
 from rest_framework import generics, mixins
 from rest_framework import filters
 from django.db.models import Q
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework.permissions import AllowAny
@@ -511,13 +511,16 @@ class GetListView(generics.ListAPIView):
     resource_serializer = UserSerializer
     queryset = User.objects.all()
     permission_classes = [AllowAny]
-    pagination_class = SetPagination
+    pagination_class = LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     filter_query = []
     filter_data = None
     search_fields = []
+    search_fields_bill = []
     _exclude = None
     search_term = None
+    search_year = None
+    search_bill = None
     Q1 = Q
     special_filter = []
 
@@ -533,9 +536,9 @@ class GetListView(generics.ListAPIView):
                 queryset = queryset.filter(**self.filter_data)
             if self._exclude:
                 queryset = queryset.exclude(**self._exclude)
-            if self.search_term:
+            if self.search_year:
                 queryset = self.get_search_results_own(
-                    queryset, self.search_term)
+                    queryset, self.search_year)
         else:
             m = int(page)
             if m == 0 or m == 1:
@@ -546,9 +549,14 @@ class GetListView(generics.ListAPIView):
                     queryset = queryset.filter(**self.filter_data)
                 if self._exclude:
                     queryset = queryset.exclude(**self._exclude)
-                if self.search_term:
+                if self.search_year:
                     queryset = self.get_search_results_own(
-                        queryset, self.search_term)
+                        queryset, self.search_year,0)
+                print(queryset)
+                if self.search_bill:
+                    queryset = self.get_search_results_own(
+                        queryset, self.search_bill,1)
+                print(queryset)
                 queryset = queryset[:50]
             else:
                 n = (m-1)*50
@@ -559,14 +567,16 @@ class GetListView(generics.ListAPIView):
                     queryset = queryset.filter(**self.filter_data)
                 if self._exclude:
                     queryset = queryset.exclude(**self._exclude)
-                if self.search_term:
+                if self.search_year:
+                    print(2)
                     queryset = self.get_search_results_own(
-                        queryset, self.search_term)
+                        queryset, self.search_year)
                 queryset = queryset[n:n+50]
         return queryset
 
     def list(self, request, page, *args, **kwargs):
         self.search_term = None
+        self.search_year=None
         page_count = request.GET.get('page', None)
         dict1 = {}
         self._exclude = {}
@@ -580,8 +590,11 @@ class GetListView(generics.ListAPIView):
             if k in self.special_filter:
                 self._current_special_filter[k] = fieldValue
                 continue
-            if k == "search":
-                self.search_term = v
+            if k == "search_year":
+                self.search_year = v
+                continue
+            if k == "search_bill":
+                self.search_bill = v
                 continue
             elif k.endswith("__exclude"):
                 self._exclude[k[:-9]] = fieldValue
@@ -597,6 +610,10 @@ class GetListView(generics.ListAPIView):
             del dict1['page']
         if(request.GET.get('count', None) is not None):
             del dict1['count']
+        if(request.GET.get('limit', None) is not None):
+            del dict1['limit']
+        if(request.GET.get('offset', None) is not None):
+            del dict1['offset']
         self.filter_data = dict1
         queryset = self.get_queryset(page)
         serializer = self.resource_serializer(queryset, many=True)
@@ -607,13 +624,17 @@ class GetListView(generics.ListAPIView):
         return self.get_paginated_response(page_detail)
 
 
-    def get_search_results_own(self, queryset, search_term):
+    def get_search_results_own(self, queryset, search_term, a):
         if search_term == None:
             return queryset
         if len(search_term) == 0:
             return queryset
         search_queries = None
-        for index, val in enumerate(self.search_fields):
+        if a:
+            search_fields = self.search_fields_bill
+        else:
+            search_fields = self.search_fields
+        for index, val in enumerate(search_fields):
             temp_field = val
             if not val.endswith("contains"):
                 temp_field = "{0}__icontains".format(val)
