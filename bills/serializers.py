@@ -5,6 +5,9 @@ from django.contrib.auth import authenticate
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
 from django.db.models import Sum
 
+def round_school(x):
+    i, f = divmod(x, 1)
+    return int(i + ((f >= 0.5) if (x > 0) else (f > 0.5)))
 
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,6 +43,52 @@ class BillDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillDetail
         fields = '__all__'
+
+class BillDetailListSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='bill_by.name')
+    party_name = serializers.CharField(source='bill_to.name')
+    total_qty = serializers.SerializerMethodField()
+    total_uom = serializers.SerializerMethodField()
+    total_bill_amount = serializers.SerializerMethodField()
+    class Meta:
+        model = BillDetail
+        fields = '__all__'
+    
+    def get_total_qty(self, obj):
+        qty = obj.billitem_set.aggregate(Sum('qty'))
+        return qty['qty__sum']
+    
+    def get_total_uom(self, obj):
+        uom = obj.billitem_set.aggregate(Sum('uom'))
+        return uom['uom__sum']
+    def get_total_bill_amount(self,obj):
+        billitems = obj.billitem_set.all()
+        grand_total = 0
+        total =0
+        bags=0
+        weights=0
+        total_expenses = 0
+        for billitem in billitems:
+            total += billitem.qty*billitem.rate
+            bags+=billitem.uom
+            weights+=billitem.qty
+        if obj.bill_to==4:
+            weights=bags
+        expenses = obj.expenses
+        exp = {}
+        exp['tulai'] = round(expenses['tulai']*total/100,2) if expenses else 0
+        exp['dharmada'] = round(expenses['dharmada']*total/100,2) if expenses else 0
+        exp['wages'] = round(expenses['wages']*weights,2) if expenses else 0
+        exp['sutli'] = round(expenses['sutli']*bags,2) if expenses else 0
+        exp['commision'] = round(expenses['commision']*total/100,2) if expenses else 0
+        exp['loading_charges'] = round(expenses['loading_charges']*bags,2) if expenses else 0
+        exp['vikas_shulk'] = round(expenses['vikas_shulk']*total/100,2) if expenses else 0
+        exp['mandi_shulk'] = round(expenses['mandi_shulk']*total/100,2) if expenses else 0
+        exp['bardana'] = round(expenses['bardana']*bags,2) if expenses else 0
+        exp['others'] = round(expenses['others'],2) if expenses else 0
+        total_expenses = round(sum(exp.values()),2)
+        grand_total = round_school(total+total_expenses+obj.frieght)
+        return grand_total
 
 class BillDetailSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='bill_by.name')

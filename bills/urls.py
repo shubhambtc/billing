@@ -1,7 +1,7 @@
 from django.urls import path, include
 from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, DeleteBill,BillEdit, GetDataUpdated
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
-from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer, BillDetailsSerializer
+from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer, BillDetailsSerializer,BillDetailListSerializer
 urlpatterns = [
     path('expense/<int:pk>', ResourceAPIView.as_view(
         model = Expense,
@@ -29,13 +29,19 @@ urlpatterns = [
     )),
     path('bill-detail/<int:pk>', ResourceAPIView.as_view(
         model = BillDetail,
-        resource_serializer = BillSerializer
+        resource_serializer = BillDetailSerializer
+    )),
+    path('bill-details-list/<str:page>',GetListView.as_view(
+        model = BillDetail,
+        resource_serializer = BillDetailListSerializer,
+        search_fields=["invoice_no"],
+        search_fields_bill = ["invoice_no","vehicle_no","date","bill_to__name","bill_by__name"]
     )),
     path('bill-detail-list/<str:page>',GetListView.as_view(
         model = BillDetail,
         resource_serializer = BillDetailsSerializer,
         search_fields=["invoice_no"],
-        search_fields_bill = ["invoice_no","vehicle_no"]
+        search_fields_bill = ["invoice_no","vehicle_no","date","bill_to__name","bill_by__name"]
     )),
     path('bill-create', BillInvoice.as_view()),
     path('bill-item/<int:pk>', ResourceAPIView.as_view(
