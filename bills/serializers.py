@@ -45,14 +45,13 @@ class BillDetailsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BillDetailListSerializer(serializers.ModelSerializer):
-    company_name = serializers.CharField(source='bill_by.name')
     party_name = serializers.CharField(source='bill_to.name')
     total_qty = serializers.SerializerMethodField()
     total_uom = serializers.SerializerMethodField()
     total_bill_amount = serializers.SerializerMethodField()
     class Meta:
         model = BillDetail
-        fields = '__all__'
+        fields = ('invoice_no','party_name','total_qty','total_uom','vehicle_no','total_bill_amount','date')
     
     def get_total_qty(self, obj):
         qty = obj.billitem_set.aggregate(Sum('qty'))
