@@ -35,7 +35,6 @@ class BillTo(models.Model):
     ship_details = models.JSONField(default=dict,null=True,blank=True)
     party_username = models.CharField(max_length=255,null=True,blank=True)
     expense = models.JSONField(default=dict,null=True,blank=True)
-    expenses = models.ForeignKey(Expense, on_delete=models.CASCADE, blank=True, null=True)
 
 class BillBy(models.Model):
     name = models.CharField(max_length=255)

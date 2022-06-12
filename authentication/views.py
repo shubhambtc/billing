@@ -483,13 +483,21 @@ class ChangePasswordView(APIView):
 class GetDataUpdated(APIView):
     permission_classes=(AllowAny,)
     def get(self,request):
-        b = BillBy.objects.all()
-        for a in b:
-            try:
-                print(a.invoice_nos["2021-2022"])
-            except:
-                a.invoice_nos["2021-2022"]= a.invoices_no
-            a.save()
+        bills = BillDetail.objects.all()
+        for bill in bills:
+            billitems = bill.billitem_set.all()
+            y=[]
+            for billitem in billitems:
+                x = {
+                    "item": billitem.item,
+                    "qty":billitem.qty,
+                    "uom": billitem.uom,
+                    "rate":billitem.rate,
+                    'po_number':billitem.po_number
+                }
+                y.append(x)
+            bill.billitems = y
+            bill.save() 
         return Response("done")
 
 class BillResourceAPIView(APIView):
