@@ -130,8 +130,7 @@ AUTH_USER_MODEL ='authentication.User'
 STATIC_URL = '/static/'
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'build','static'),
-    os.path.join(BASE_DIR, 'build','assets')
+    os.path.join(BASE_DIR, 'build')
 ]
 MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
