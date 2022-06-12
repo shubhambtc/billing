@@ -70,9 +70,9 @@ class BillDetailListSerializer(serializers.ModelSerializer):
         weights=0
         total_expenses = 0
         for billitem in billitems:
-            total += billitem.qty*billitem.rate
-            bags+=billitem.uom
-            weights+=billitem.qty
+            total += billitem['qty']*billitem['rate']
+            bags+=billitem['uom']
+            weights+=billitem['qty']
         if obj.bill_to==4:
             weights=bags
         expenses = obj.expenses
