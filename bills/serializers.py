@@ -50,14 +50,20 @@ class BillDetailListSerializer(serializers.ModelSerializer):
         fields = ('id','invoice_no','party_name','total_qty','total_uom','vehicle_no','total_bill_amount','date')
     
     def get_total_qty(self, obj):
-        qty = obj.billitem_set.aggregate(Sum('qty'))
-        return qty['qty__sum']
+        billitems = obj.billitems
+        qty=0
+        for billitem in billitems:
+            qty +=billitem['qty']
+        return qty
     
     def get_total_uom(self, obj):
-        uom = obj.billitem_set.aggregate(Sum('uom'))
-        return uom['uom__sum']
+        billitems = obj.billitems
+        uom=0
+        for billitem in billitems:
+            uom +=billitem['uom']
+        return uom
     def get_total_bill_amount(self,obj):
-        billitems = obj.billitem_set.all()
+        billitems = obj.billitems
         grand_total = 0
         total =0
         bags=0
