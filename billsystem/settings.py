@@ -131,18 +131,20 @@ STATIC_URL = '/static/'
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'build','static'),
-
+    os.path.join(BASE_DIR, 'build','assets')
 ]
 MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 REACT_ROUTES = [
-    'login',
-    'logout',
-    'bill',
-    'bill-list',
-    'bill-by',
-    'bill-by-list',
-    'bill-to',
-    'bill-to-list',
+    'dashboard/v2',
+    'company/list',
+    'company/create',
+    'company/<int:id>',
+    'party/list',
+    'party/create',
+    'party/<int:id>',
+    'invoice/list',
+    'invoice/create',
+    'invoice/<int:id>',
 ]
