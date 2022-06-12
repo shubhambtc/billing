@@ -130,6 +130,7 @@ class BillDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillDetail
         fields = '__all__'
+        exclude = ('invoice')
     
     def get_total_qty(self, obj):
         billitems = obj.billitems

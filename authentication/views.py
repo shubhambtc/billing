@@ -247,7 +247,7 @@ class Bill(APIView):
         bill=BillDetail.objects.get(pk=pk)
         local_file = open('invoices.pdf', 'rb')
         bill.invoice.save('{}.pdf'.format("invoice"), File(local_file))
-        serialize = BillDetailSerializer(bill)
+        serialize = BillDetailsSerializer(bill)
         return Response(serialize.data)
 
 class ResourceAPIView(APIView):
