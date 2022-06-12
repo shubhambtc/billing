@@ -1,0 +1,94 @@
+{
+  "id": 48,
+  "bill_tos": {
+    "id": 24,
+    "name": "BANSAL TRADING COMPANY",
+    "address": "House no 27",
+    "state": "Uttar Pradesh",
+    "state_code": "9",
+    "gstin": "09ACEPB5417E1Z1",
+    "bill_type": "MandiIn",
+    "bill_info": "bill_to_ship_to",
+    "ship_details": {
+      "name": "BANSAL TRADING COMPANY",
+      "address": "sambhal",
+      "gstin": "09ACEPB5417E1Z1",
+      "state": "Uttar Pradesh",
+      "state_code": "9"
+    },
+    "party_username": "BTC",
+    "expense": {
+      "tulai": 1,
+      "dharmada": 1,
+      "wages": 1,
+      "mandi_shulk": 1,
+      "vikas_shulk": 1,
+      "others": 1,
+      "commision": 1,
+      "loading_charges": 1,
+      "bardana": 1,
+      "sutli": 1
+    },
+    "expenses": null
+  },
+  "bill_bys": {
+    "id": 2,
+    "name": "BANSAL TRADING COMPANY",
+    "gstin": "09ACEPB5417E1Z1",
+    "mobile1": "9411861351",
+    "mobile2": "7017366150",
+    "address": "House no 27",
+    "state": "Uttar Pradesh",
+    "state_code": 9,
+    "bank_name": "Punjab National Bank",
+    "bank_account_no": "0031002100016235",
+    "bank_ifsc": "PUNB0003100",
+    "bank_branch": "Anupshahr",
+    "invoices_no": 0,
+    "invoice_nos": {
+      "2022-2023": 2
+    },
+    "sign": null
+  },
+  "total_qty": 200,
+  "total_uom": 500,
+  "invoice_no": "BTC/2022-2023/002",
+  "date": "2022-06-09",
+  "vehicle_no": "UP13AT1693",
+  "remarks": "",
+  "bw": "A",
+  "frieght": 100000,
+  "invoice": null,
+  "expenses": {
+    "tulai": 1,
+    "dharmada": 1,
+    "wages": 1,
+    "mandi_shulk": 1,
+    "vikas_shulk": 1,
+    "others": 1,
+    "commision": 1,
+    "loading_charges": 1,
+    "bardana": 1,
+    "sutli": 1
+  },
+  "shipto": {
+    "name": "BANSAL TRADING COMPANY",
+    "address": "sambhal",
+    "gstin": "09ACEPB5417E1Z1",
+    "state": "Uttar Pradesh",
+    "state_code": "9"
+  },
+  "billitems": [
+    {
+      "item": "paddy sugandh",
+      "uom": 500,
+      "qty": 200,
+      "rate": 2000,
+      "po_number": "abcd"
+    }
+  ],
+  "gstdetail": {},
+  "is_active": true,
+  "bill_to": 24,
+  "bill_by": 2
+}

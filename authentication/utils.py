@@ -415,7 +415,8 @@ class PDF(FPDF):
         self.set_xy(80,257)
         self.set_font('Times', 'B', 12)
         self.cell(55,10,company_name, 0,0,'C')
-        self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/"+sign, x = 83, y = 265, w = 49, h = 7, type = 'JPG', link = '')
+        if sign:
+            self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/"+sign, x = 83, y = 265, w = 49, h = 7, type = 'JPG', link = '')
         self.set_xy(80,274)
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Prop./Auth. Signatory", 0,0,'C')
@@ -426,7 +427,8 @@ class PDF(FPDF):
         self.set_xy(135,257)
         self.set_font('Times', 'B', 14)
         self.cell(60,10,company_name, 0,0,'C')
-        self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/" + sign, x = 140, y = 265, w = 49, h = 7, type = 'JPG', link = '')
+        if sign:
+            self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/" + sign, x = 140, y = 265, w = 49, h = 7, type = 'JPG', link = '')
         self.set_xy(135,274)
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Authorised Signatory", 0,0,'C')

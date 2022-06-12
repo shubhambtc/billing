@@ -33,7 +33,9 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
-
+    role = serializers.SerializerMethodField()
+    def get_role(self,obj):
+        return 'ADMIN'
     def validate(self, data):
         email = data.get('email', None)
         password = data.get('password', None)
@@ -60,7 +62,8 @@ class LoginSerializer(serializers.Serializer):
 
         return {
             'email': user.email,
-            'token': str(user.token)
+            'token': str(user.token),
+            'role': 'admin'
         }
 
 class UserSerializer(serializers.ModelSerializer):

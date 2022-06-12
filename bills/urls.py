@@ -1,7 +1,7 @@
-from django.urls import path, include
-from authentication.views import ResourceAPIView, GetListView, BillInvoice, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, DeleteBill,BillEdit, GetDataUpdated
+from django.urls import path
+from authentication.views import ResourceAPIView, GetListView, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, GetDataUpdated, BillResourceAPIView
 from .models import Expense, BillTo, BillBy, BillDetail, BillItem, Dara
-from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillDetailSerializer, BillBySerializer, BillToExpenseSerializer, BillSerializer, DaraSerializer, BillDetailsSerializer,BillDetailListSerializer
+from .serializers import ExpenseSerializer, BillToSerializer, BillItemSerializer, BillBySerializer, DaraSerializer, BillDetailsSerializer,BillDetailListSerializer
 urlpatterns = [
     path('expense/<int:pk>', ResourceAPIView.as_view(
         model = Expense,
@@ -17,7 +17,8 @@ urlpatterns = [
     )),
     path('bill-to-list/<str:page>',GetListView.as_view(
         model = BillTo,
-        resource_serializer = BillToExpenseSerializer
+        resource_serializer = BillToSerializer,
+        search_fields = ["name","gstin"]
     )),
     path('bill-by/<int:pk>', ResourceAPIView.as_view(
         model = BillBy,
@@ -27,9 +28,9 @@ urlpatterns = [
         model = BillBy,
         resource_serializer = BillBySerializer
     )),
-    path('bill-detail/<int:pk>', ResourceAPIView.as_view(
+    path('bill-detail/<int:pk>', BillResourceAPIView.as_view(
         model = BillDetail,
-        resource_serializer = BillDetailSerializer
+        resource_serializer = BillDetailsSerializer
     )),
     path('bill-details-list/<str:page>',GetListView.as_view(
         model = BillDetail,
@@ -43,7 +44,6 @@ urlpatterns = [
         search_fields=["invoice_no"],
         search_fields_bill = ["invoice_no","vehicle_no","date","bill_to__name","bill_by__name"]
     )),
-    path('bill-create', BillInvoice.as_view()),
     path('bill-item/<int:pk>', ResourceAPIView.as_view(
         model = BillItem,
         resource_serializer = BillItemSerializer
@@ -60,12 +60,9 @@ urlpatterns = [
         model = Dara,
         resource_serializer = DaraSerializer
     )),
-
     path('bill-get/<int:pk>',Bill.as_view()),
     path('bill-csv/<int:pk>',getcsv.as_view()),
     path('bill-wise-csv/<int:pk>',getbillwisecsv.as_view()),
     path('bill-wise-expense-csv/<int:pk>',getbillwithexpensecsv.as_view()),
-    path('bill-delete/<int:pk>',DeleteBill.as_view()),
-    path('bill-edit/<int:pk>',BillEdit.as_view()),
     path('edit',GetDataUpdated.as_view()),
 ]

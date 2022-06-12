@@ -7,7 +7,10 @@ BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
     ('MandiOut','MandiOut')
 ]
-
+BILL_INFO_CHOICES = [
+    ('bill_to','bill_to'),
+    ('bill_to_ship_to','bill_to_ship_to')
+]
 
 class Expense(models.Model):
     tulai = models.FloatField(null=True, blank=True, default=0)
@@ -28,7 +31,11 @@ class BillTo(models.Model):
     state_code = models.CharField(max_length=255)
     gstin = models.CharField(max_length=255, blank=True, null=True)
     bill_type = models.CharField(max_length=255, choices=BILL_TYPE_CHOICES)
-    expense = models.ForeignKey(Expense, on_delete=models.CASCADE, blank=True, null=True)
+    bill_info = models.CharField(max_length=255, choices=BILL_INFO_CHOICES, null=True,blank=True)
+    ship_details = models.JSONField(default=dict,null=True,blank=True)
+    party_username = models.CharField(max_length=255,null=True,blank=True)
+    expense = models.JSONField(default=dict,null=True,blank=True)
+    expenses = models.ForeignKey(Expense, on_delete=models.CASCADE, blank=True, null=True)
 
 class BillBy(models.Model):
     name = models.CharField(max_length=255)
@@ -58,7 +65,7 @@ class BillDetail(models.Model):
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
     expenses = models.JSONField(default=dict)
     shipto = models.JSONField(default=dict)
-    
+    billitems = models.JSONField(default=list)
     gstdetail = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
 
