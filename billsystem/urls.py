@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import index
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -24,12 +23,4 @@ urlpatterns = [
     path('api/',include('authentication.urls')),
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
-    path('',index, name='index')
-]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-routes = getattr(settings, 'REACT_ROUTES', [])
-for route in routes:
-    urlpatterns += [
-        path('{}'.format(route),index, name="index" )
-    ]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

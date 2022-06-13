@@ -24,18 +24,18 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from .serializers import RegistrationSerializer, LoginSerializer
 from .renderer import UserJSONRenderer
-from bills.models import BillTo, BillItem, BillBy, Expense, BillDetail
-from bills.serializers import BillDetailsSerializer, ExpenseSerializer, BillDetailSerializer, BillDetailinsideSerializer, BillItemSerializer, BillSerializer,BillDetailSerializer,ForPrintingBillSerializer
+from bills.models import BillTo, BillBy, BillDetail
+from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer
 from rest_framework.renderers import BaseRenderer
 def getbillrowwithexpense(bill):
-    billitems = bill.billitem_set.all()
+    billitems = bill.billitems
     amount = 0
     bags=0 
     weight=0
     for billitem in billitems:
-        amount += billitem.qty*billitem.rate
-        bags += billitem.uom
-        weight += billitem.qty
+        amount += billitem['qty']*billitem['rate']
+        bags += billitem['uom']
+        weight += billitem['qty']
     expenses = bill.bill_to.expense
     if expenses:
         tulai = round(float(expenses.tulai)*amount/100,2)
@@ -161,8 +161,7 @@ class getbillwisecsv(APIView):
 class getcsv(APIView):
     def get(self, request, pk):
             Bills = BillDetail.objects.filter(bill_to=pk)
-            billitem = BillItem.objects.filter(bill_detail__in=Bills)
-            projects = BillItemSerializer(billitem, many=True)
+            projects = Bills.billitems
             projects = projects.data
             if projects:
                 fields_header = projects[0].keys()

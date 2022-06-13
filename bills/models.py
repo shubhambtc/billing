@@ -11,18 +11,6 @@ BILL_INFO_CHOICES = [
     ('bill_to_ship_to','bill_to_ship_to')
 ]
 
-class Expense(models.Model):
-    tulai = models.FloatField(null=True, blank=True, default=0)
-    dharmada = models.FloatField(null=True, blank=True, default=0)
-    wages = models.FloatField(null=True, blank=True, default=0)
-    mandi_shulk = models.FloatField(null=True, blank=True, default=0)
-    sutli = models.FloatField(null=True, blank=True, default=0)
-    commision = models.FloatField(null=True, blank=True, default=0)
-    loading_charges = models.FloatField(null=True, blank=True, default=0)
-    vikas_shulk = models.FloatField(null=True, blank=True, default=0)
-    others = models.FloatField(null=True, blank=True, default=0)
-    bardana = models.FloatField(null=True, blank=True, default=0)
-
 class BillTo(models.Model):
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
@@ -66,20 +54,3 @@ class BillDetail(models.Model):
     billitems = models.JSONField(default=list)
     gstdetail = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
-
-class BillItem(models.Model):
-    bill_detail = models.ForeignKey(BillDetail, on_delete=models.CASCADE, blank=True, null=True)
-    item = models.CharField(max_length=255)
-    rate = models.FloatField()
-    qty = models.FloatField()
-    uom = models.IntegerField(blank=True, default=100)
-    po_number = models.CharField(max_length=255, default="", blank=True)
-
-class Dara(models.Model):
-    bill_to = models.ForeignKey(BillTo,on_delete=models.CASCADE)
-    purchase_date = models.DateField(default="2021-01-01")
-    loading_date = models.DateField(default="2021-01-01")
-    vehicle_no = models.CharField(max_length=255, default="", blank=True)
-    dara = models.JSONField(default=list, blank=True, null=True)
-    weight = models.FloatField()
-    rate = models.FloatField()
