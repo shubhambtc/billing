@@ -17,10 +17,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.shortcuts import render
+def render_react(request):
+    return render(request, "index.html")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',include('authentication.urls')),
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
+    path('',render_react)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += staticfiles_urlpatterns()
