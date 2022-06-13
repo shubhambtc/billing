@@ -13,12 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from pydoc import render_doc
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import render
+from .views import index
 def render_react(request):
     return render(request, "index.html")
 
@@ -27,7 +29,13 @@ urlpatterns = [
     path('api/',include('authentication.urls')),
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
-    path('',render_react)
+    path('',index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()
+
+routes = getattr(settings, 'REACT_ROUTES', [])
+for route in routes:
+    urlpatterns += [
+        path('{}'.format(route),index, name="index" )
+    ]
