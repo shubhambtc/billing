@@ -1,7 +1,6 @@
 from email.policy import default
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
-from jsonfield import JSONField
 # Create your models here.
 BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),

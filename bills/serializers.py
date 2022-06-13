@@ -62,6 +62,7 @@ class BillDetailListSerializer(serializers.ModelSerializer):
         for billitem in billitems:
             uom +=billitem['uom']
         return uom
+    
     def get_total_bill_amount(self,obj):
         billitems = obj.billitems
         grand_total = 0
@@ -97,10 +98,13 @@ class ForPrintingBillSerializer(serializers.ModelSerializer):
     bill_bys = serializers.SerializerMethodField()
     total_qty = serializers.SerializerMethodField()
     total_uom = serializers.SerializerMethodField()
-
+    date = serializers.SerializerMethodField()
     class Meta:
         model = BillDetail
         fields = '__all__'
+    
+    def get_date(self,obj):
+        return obj.date.strftime("%d %b %Y ")
     
     def get_total_qty(self, obj):
         billitems = obj.billitems
