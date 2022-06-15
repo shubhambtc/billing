@@ -1,7 +1,6 @@
 from django.urls import path, include
-from .views import RegistrationAPIView, LoginAPIView, ChangePasswordView
+from .views import RegistrationAPIView, LoginAPIView, ChangePasswordView, CheckAuthentication
 urlpatterns = [
-    path('users/', RegistrationAPIView.as_view()),
-    path('users/login/', LoginAPIView.as_view()),
+    path('users/check-authentication/',CheckAuthentication.as_view()),
     path('users/password/', ChangePasswordView.as_view()),
 ]

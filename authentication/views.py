@@ -27,6 +27,9 @@ from .renderer import UserJSONRenderer
 from bills.models import BillTo, BillBy, BillDetail
 from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer
 from rest_framework.renderers import BaseRenderer
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from six import text_type
 def getbillrowwithexpense(bill):
     billitems = bill.billitems
     amount = 0
@@ -315,7 +318,7 @@ class GetListView(generics.ListAPIView):
     model = User
     resource_serializer = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     pagination_class = LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     filter_query = []
@@ -453,8 +456,26 @@ class LoginAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class CheckAuthentication(APIView):
+    permission_classes = [AllowAny,]
+    def get(self, request):
+        try:
+            user = self.request.user
+            if User.objects.filter(email=user.email).exists():
+                user = User.objects.get(email=user.email)
+                tokens = RefreshToken.for_user(user)
+                access = text_type(tokens.access_token)
+                serializer = LoginSerializer(user)
+                data = serializer.data
+                data['access'] = access
+                return Response(data)                
+            else:
+                return Response({"error": "Not Authenticated 1"}, status=status.HTTP_401_UNAUTHORIZED)
+        except:
+            return Response({"error": "Not Authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 class RegistrationAPIView(APIView):
-    # Allow any user (authenticated or not) to hit this endpoint.
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer

@@ -20,15 +20,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.shortcuts import render
-from .views import index
+from .views import index, CustomTokenObtainPairView
+from rest_framework_simplejwt import views as jwt_views
 def render_react(request):
     return render(request, "index.html")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/users/login/',CustomTokenObtainPairView.as_view(),name ='token_obtain_pair'),
+    path('api/token/refresh/',jwt_views.TokenRefreshView.as_view()),
     path('api/',include('authentication.urls')),
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
+    path('api/orders/',include('orders.urls')),
     path('',index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
