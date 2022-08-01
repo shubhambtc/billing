@@ -1,16 +1,24 @@
 from django.urls import path
 from authentication.views import ResourceAPIView, GetListView, Bill, getcsv,getbillwisecsv,getbillwithexpensecsv, GetDataUpdated, BillResourceAPIView
 from .models import BillTo, BillBy, BillDetail
-from .serializers import BillToSerializer, BillBySerializer, BillDetailsSerializer,BillDetailListSerializer
+from .serializers import BillToSerializer, BillBySerializer, BillDetailsSerializer,BillDetailListSerializer, BillToNameSerializer, BillByNameSerializer
 urlpatterns = [
     path('bill-to/<int:pk>', ResourceAPIView.as_view(
         model = BillTo,
         resource_serializer = BillToSerializer
     )),
+    path('bill-to-name-list/<str:page>',GetListView.as_view(
+        model=BillTo,
+        resource_serializer=BillToNameSerializer
+    )),
+    path('bill-by-name-list/<str:page>',GetListView.as_view(
+        model=BillBy,
+        resource_serializer=BillByNameSerializer
+    )),
     path('bill-to-list/<str:page>',GetListView.as_view(
         model = BillTo,
         resource_serializer = BillToSerializer,
-        search_fields = ["name","gstin"]
+        search_fields = ["name","gstin","address","state","party_username"]
     )),
     path('bill-by/<int:pk>', ResourceAPIView.as_view(
         model = BillBy,

@@ -1,0 +1,59 @@
+{
+  "loading": {
+    "partyValue": [
+      {
+        "label": "Anupshahr",
+        "value": 1,
+        "val": "mandi-purchase"
+      },
+      {
+        "label": "Dibai",
+        "value": 2,
+        "val": "mandi-purchase"
+      },
+      {
+        "label": "Anil ji",
+        "val": "broker",
+        "value": 4
+      }
+    ],
+    "id": 2,
+    "loading_from_name": [
+      {
+        "label": "Anupshahr",
+        "value": 1,
+        "val": "mandi-purchase"
+      },
+      {
+        "label": "Dibai",
+        "value": 2,
+        "val": "mandi-purchase"
+      }
+    ],
+    "date": "2022-07-23",
+    "genes": "maize",
+    "vehicle_number": "UP13AT1693",
+    "quantity": 300,
+    "freight": 0,
+    "frieght_paid_at_loading": 0,
+    "remarks": "abc",
+    "unloaded": false,
+    "loading_from": [1, 2, 4]
+  },
+  "loading_obj": [
+    {
+      "purchase_order": 1,
+      "loading_party": 1,
+      "loading_broker": null,
+      "quantity_loaded": "100",
+      "quantity": "100"
+    },
+    {
+      "purchase_order": 5,
+      "loading_party": 3,
+      "loading_broker": 4,
+      "quantity_loaded": "200",
+      "quantity": "200"
+    }
+  ]
+}

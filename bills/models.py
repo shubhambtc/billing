@@ -1,6 +1,7 @@
 from email.policy import default
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
+from ckeditor.fields import RichTextField
 # Create your models here.
 BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
@@ -22,9 +23,11 @@ class BillTo(models.Model):
     ship_details = models.JSONField(default=dict,null=True,blank=True)
     party_username = models.CharField(max_length=255,null=True,blank=True)
     expense = models.JSONField(default=dict,null=True,blank=True)
+    is_active = models.BooleanField(default=True)
 
 class BillBy(models.Model):
     name = models.CharField(max_length=255)
+    shortname=models.CharField(max_length=255, null=True,blank=True)
     gstin = models.CharField(max_length=255)
     mobile1 = models.CharField(max_length=10)
     mobile2 = models.CharField(max_length=10)
@@ -38,6 +41,8 @@ class BillBy(models.Model):
     invoices_no = models.IntegerField(default=0,null=True, blank=True)
     invoice_nos = models.JSONField(default=dict)
     sign = models.ImageField(upload_to="sign", blank=True,null=True)
+    is_active = models.BooleanField(default=True)
+
 BW_CHOICES = [('A','A'), ('B','B')]
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255, blank=True, null=True)
@@ -54,3 +59,8 @@ class BillDetail(models.Model):
     billitems = models.JSONField(default=list)
     gstdetail = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
+
+
+class LetterHead(models.Model):
+    party=models.ForeignKey(BillBy, on_delete=models.CASCADE)
+    matter = RichTextField()

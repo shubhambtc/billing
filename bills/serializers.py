@@ -10,7 +10,15 @@ class BillToSerializer(serializers.ModelSerializer):
         model = BillTo
         fields = '__all__'
 
+class BillToNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillTo
+        fields = ('id','party_username')
 
+class BillByNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BillBy
+        fields = ('id','shortname')
 class BillBySerializer(serializers.ModelSerializer):
     class Meta:
         model = BillBy

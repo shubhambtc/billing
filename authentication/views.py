@@ -23,10 +23,8 @@ from rest_framework import exceptions
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
 from .serializers import RegistrationSerializer, LoginSerializer
-from .renderer import UserJSONRenderer
 from bills.models import BillTo, BillBy, BillDetail
 from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer
-from rest_framework.renderers import BaseRenderer
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
@@ -242,6 +240,7 @@ def gen_pdf(billdetail):
     return pdf
 
 class Bill(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk):
         billdetail = BillDetail.objects.get(pk=pk)
         billdetail = ForPrintingBillSerializer(billdetail).data
@@ -256,7 +255,7 @@ class ResourceAPIView(APIView):
     """
     All the resource api will be created from here.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     model = User
     resource_serializer = UserSerializer
     matching_condition = 0
@@ -303,16 +302,10 @@ class ResourceAPIView(APIView):
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:
             return Response({'message': 'The resource does not exist'},status=status.HTTP_400_BAD_REQUEST)
-        resource_item.delete()
+        resource_item.is_active=False
+        resource_item.save()
         return Response({'message': 'The resource is deleted successfully!'}, status=status.HTTP_201_CREATED)
 
-class SetPagination(PageNumberPagination):
-
-    page_size = 50
-    page_size_query_param = 'count'
-
-    def get_paginated_response(self, data):
-        return Response(data, status=status.HTTP_200_OK)
 
 class GetListView(generics.ListAPIView):
     model = User
@@ -331,23 +324,13 @@ class GetListView(generics.ListAPIView):
     search_bill = None
     Q1 = Q
     special_filter = []
+    order_arg=[]
 
     def get_queryset(self, page):
         """
         queryset of the Get
         """
         if page == 'all':
-            queryset = self.model.objects.all()
-            for val in self.filter_query:
-                queryset.filter(**val)
-            if self.filter_data:
-                queryset = queryset.filter(**self.filter_data)
-            if self._exclude:
-                queryset = queryset.exclude(**self._exclude)
-            if self.search_year:
-                queryset = self.get_search_results_own(
-                    queryset, self.search_year)
-        else:
             queryset = self.model.objects.all()
             for val in self.filter_query:
                 queryset.filter(**val)
@@ -364,14 +347,34 @@ class GetListView(generics.ListAPIView):
             if self.search_bill:
                 queryset = self.get_search_results_own(
                     queryset, self.search_bill,1)
-        return queryset
-
+        else:
+            queryset = self.model.objects.all()
+            for val in self.filter_query:
+                queryset.filter(**val)
+            if self.filter_data:
+                queryset = queryset.filter(**self.filter_data).distinct()
+            if self._exclude:
+                queryset = queryset.exclude(**self._exclude)
+            if self.search_term:
+                queryset = self.get_search_results_own(
+                    queryset, self.search_term,0)
+            if self.search_year:
+                queryset = self.get_search_results_own(
+                    queryset, self.search_year,0)
+            if self.search_bill:
+                queryset = self.get_search_results_own(
+                    queryset, self.search_bill,1)
+        try:
+            return queryset.distinct().order_by(*self.order_arg)
+        except:
+            return queryset.distinct().order_by(*self.order_arg)
     def list(self, request, page, *args, **kwargs):
         self.search_term = None
         self.search_year=None
         dict1 = {}
         self._exclude = {}
         self._current_special_filter = {}
+        dict1['is_active'] =True
         for k, v in request.query_params.items():
             fieldValue = v
             try:
@@ -394,9 +397,12 @@ class GetListView(generics.ListAPIView):
                 continue
             if k.endswith('__in'):
                 fieldValue = request.query_params.getlist(k)
+            if k == "sort_by__in":
+                self.order_arg = request.query_params.getlist(k,['id'])
             if k.endswith('__date'):
-                fieldValue = datetime.datetime.strptime(fieldValue, "%Y-%m-%d")
+                fieldValue = datetime.strptime(fieldValue, "%Y-%m-%d")
                 dict1[k[:-6]] = fieldValue
+                print(dict1)
                 continue
             dict1[k] = fieldValue
         if(request.GET.get('page', None) is not None):
@@ -409,6 +415,8 @@ class GetListView(generics.ListAPIView):
             del dict1['offset']
         if(request.GET.get('search_term', None) is not None):
             del dict1['search_term']
+        if(request.GET.get('sort_by__in', None) is not None):
+            del dict1['sort_by__in']
         self.filter_data = dict1
         queryset = self.get_queryset(page)
         if page == 'all':
@@ -445,17 +453,6 @@ class GetListView(generics.ListAPIView):
             return queryset.filter(search_queries)
         return queryset
 
-class LoginAPIView(APIView):
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        user = request.data.get('user', {})
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 class CheckAuthentication(APIView):
     permission_classes = [AllowAny,]
     def get(self, request):
@@ -474,31 +471,6 @@ class CheckAuthentication(APIView):
         except:
             return Response({"error": "Not Authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
 
-
-class RegistrationAPIView(APIView):
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = RegistrationSerializer
-
-    def post(self, request):
-        user = request.data.get('user', {})
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-class ChangePasswordView(APIView):
-    # Allow any user (authenticated or not) to hit this endpoint.
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-
-    def post(self, request):
-        user = request.data.get('user', {})
-        user_in = User.objects.get(id=user['id'])
-        user_in.set_password(user['password'])
-        user_in.save()
-        return Response({"success": True}, status=status.HTTP_201_CREATED)
 
 class GetDataUpdated(APIView):
     permission_classes=(AllowAny,)
@@ -524,7 +496,7 @@ class BillResourceAPIView(APIView):
     """
     All the resource api will be created from here.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     model = BillDetail
     resource_serializer = BillDetailsSerializer
     matching_condition = 0

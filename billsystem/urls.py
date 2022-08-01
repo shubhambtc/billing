@@ -15,7 +15,7 @@ Including another URLconf
 """
 from pydoc import render_doc
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -33,13 +33,7 @@ urlpatterns = [
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
     path('api/orders/',include('orders.urls')),
-    path('',index)
+    re_path(r'(.*)',index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()
-
-routes = getattr(settings, 'REACT_ROUTES', [])
-for route in routes:
-    urlpatterns += [
-        path('{}'.format(route),index, name="index" )
-    ]
