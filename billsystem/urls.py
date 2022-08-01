@@ -13,18 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from pydoc import render_doc
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.shortcuts import render
-from .views import index, CustomTokenObtainPairView
+from .views import CustomTokenObtainPairView
 from rest_framework_simplejwt import views as jwt_views
-def render_react(request):
-    return render(request, "index.html")
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/login/',CustomTokenObtainPairView.as_view(),name ='token_obtain_pair'),
@@ -33,7 +27,4 @@ urlpatterns = [
     path('api/',include('bills.urls')),
     path('api/',include('warehouse.urls')),
     path('api/orders/',include('orders.urls')),
-    re_path(r'(.*)',index)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns += staticfiles_urlpatterns()

@@ -7,8 +7,6 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidTok
 from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework import status
 
-index = never_cache(TemplateView.as_view(template_name='index.html'))
-
 
 class CustomTokenObtainPairView(TokenViewBase):
     serializer_class = CustomTokenObtainPairSerializer
