@@ -120,8 +120,8 @@ class ForPrintingBillSerializer(serializers.ModelSerializer):
 
 
 class BillDetailSerializer(serializers.ModelSerializer):
-    company_name = serializers.CharField(source='bill_by.name')
-    party_name = serializers.CharField(source='bill_to.name')
+    company_short_name = serializers.CharField(source='bill_by.shortname')
+    party_username = serializers.CharField(source='bill_to.party_username')
     bill_tos = serializers.SerializerMethodField()
     bill_bys = serializers.SerializerMethodField()
     total_qty = serializers.SerializerMethodField()
