@@ -6,7 +6,24 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import AuthenticationFailed, InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework import status
+from django.http import HttpResponse
 
+index = never_cache(TemplateView.as_view(template_name='index.html'))
+def image(request):
+    image_data = open("build/logo512.png", "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
+
+def logo(request):
+    image_data = open("build/logo.png", "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
+
+def logo(request):
+    image_data = open("build/logo.png", "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
+
+def favicon(request):
+    image_data = open("build/favicon.ico", "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
 
 class CustomTokenObtainPairView(TokenViewBase):
     serializer_class = CustomTokenObtainPairSerializer
