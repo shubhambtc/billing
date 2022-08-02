@@ -25,6 +25,10 @@ def favicon(request):
     image_data = open("build/favicon.ico", "rb").read()
     return HttpResponse(image_data, content_type="image/png")
 
+def defaultuser(request):
+    image_data = open("build/defaultuser.webp", "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
+
 class CustomTokenObtainPairView(TokenViewBase):
     serializer_class = CustomTokenObtainPairSerializer
 

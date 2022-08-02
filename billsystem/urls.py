@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import CustomTokenObtainPairView, favicon, index, image, logo
+from .views import CustomTokenObtainPairView, favicon, index, image, logo, defaultuser
 from rest_framework_simplejwt import views as jwt_views
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,7 +29,8 @@ urlpatterns = [
     path('api/orders/',include('orders.urls')),
     path('logo512.png',image),
     path('logo.png',logo),
-    path('favicon.ico',favicon)
+    path('favicon.ico',favicon),
+    path('defaultuser.webp',defaultuser)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns +=[re_path(r'(.*)', index)]
