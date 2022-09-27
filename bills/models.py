@@ -25,6 +25,13 @@ class BillTo(models.Model):
     expense = models.JSONField(default=dict,null=True,blank=True)
     is_active = models.BooleanField(default=True)
 
+
+class Bilty(models.Model):
+    name=models.CharField(max_length=255,blank=True,null=True)
+    address=models.CharField(max_length=255,blank=True,null=True)
+    mob=models.CharField(max_length=255,blank=True,null=True)
+    gstin=models.CharField(max_length=255,blank=True,null=True)
+    is_active = models.BooleanField(default=True)
 class BillBy(models.Model):
     name = models.CharField(max_length=255)
     shortname=models.CharField(max_length=255, null=True,blank=True)
@@ -38,12 +45,16 @@ class BillBy(models.Model):
     bank_account_no = models.CharField(max_length=255)
     bank_ifsc = models.CharField(max_length=255)
     bank_branch = models.CharField(max_length=255)
-    invoices_no = models.IntegerField(default=0,null=True, blank=True)
     invoice_nos = models.JSONField(default=dict)
     sign = models.ImageField(upload_to="sign", blank=True,null=True)
     is_active = models.BooleanField(default=True)
+    bilty=models.ForeignKey(Bilty,null=True,blank=True, on_delete=models.CASCADE)
+    bilty_add = models.CharField(null=True, blank=True, max_length=100)
+    types = models.CharField(default="mandi_in",max_length=255)
 
 BW_CHOICES = [('A','A'), ('B','B')]
+BT_CHOICES = [('to_pay','To Pay'), ('for','F. O. R')]
+
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField()
@@ -55,11 +66,12 @@ class BillDetail(models.Model):
     frieght = models.IntegerField(default=0)
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
     expenses = models.JSONField(default=dict)
-    shipto = models.JSONField(default=dict)
     billitems = models.JSONField(default=list)
-    gstdetail = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
-
+    nine_r = models.CharField(max_length=255,blank=True,null=True)
+    gatepass = models.CharField(max_length=255, blank=True, null=True)
+    bilty_type = models.CharField(max_length=255, default='to_pay', choices=BT_CHOICES,null=True,blank=True)
+    frieght_per_qtl = models.IntegerField(null=True,blank=True)
 
 class LetterHead(models.Model):
     party=models.ForeignKey(BillBy, on_delete=models.CASCADE)

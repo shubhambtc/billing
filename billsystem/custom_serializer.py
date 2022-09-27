@@ -21,7 +21,6 @@ class CustomTokenObtainPairSerializer(TokenObtainSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        print(self.user)
         if not self.user.is_active:
             raise InActiveUser()
         refresh = self.get_token(self.user)

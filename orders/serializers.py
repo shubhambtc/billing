@@ -171,8 +171,6 @@ class DetailedUnloadingSerializer(serializers.ModelSerializer):
                 dic['broker'] =  unloading.unloading_broker.name
             except:
                 dic['broker'] = None
-            dic['party'] = unloading.unloading_party.name
-            dic['broker'] = unloading.unloading_broker.name
             dic['quantity_unloaded'] = unloading.quantity_unloaded
             dic['quantity'] = unloading.quantity
             dic['rate'] = unloading.sales_order.rate

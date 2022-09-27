@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BillTo, BillBy, BillDetail
+from .models import BillTo, BillBy, BillDetail, Bilty
 
 def round_school(x):
     i, f = divmod(x, 1)
@@ -81,7 +81,71 @@ class BillDetailListSerializer(serializers.ModelSerializer):
         total_expenses = round(sum(exp.values()),2)
         grand_total = round_school(total+total_expenses+obj.frieght)
         return grand_total
+class ConsignorSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model=BillBy
+        fields = ('name','id','bilty_add','gstin')
+
+class ConsigneeSerializer(serializers.ModelSerializer):
+    delivery_at = serializers.SerializerMethodField()
+    class Meta:
+        model=BillTo
+        fields = ('name','id','delivery_at','gstin')
+    
+    def get_delivery_at(self,obj):
+        return obj.ship_details['address']
+
+class ForPrintingBiltySerializer(serializers.ModelSerializer):
+    consignee = serializers.SerializerMethodField()
+    consignor = serializers.SerializerMethodField()
+    net_qty = serializers.SerializerMethodField()
+    qty = serializers.SerializerMethodField()
+    uom = serializers.SerializerMethodField()
+    all_up = serializers.SerializerMethodField()
+    bilty_info = serializers.SerializerMethodField()
+    item = serializers.SerializerMethodField()
+    class Meta:
+        model = BillDetail
+        fields = ('consignee','consignor','net_qty','uom','qty','frieght_per_qtl','bilty_info','bilty_type','item','frieght','all_up')
+    def get_item(self,obj):
+        return obj.billitems[0]['item']
+    def get_all_up(self,obj):
+        d = obj.date.strftime("%d %b %Y ")
+        c = {
+            "date": d,
+            "vehicle_no":obj.vehicle_no,
+            "num":"123",
+        }
+        return c
+    def get_bilty_info(self,obj):
+        bilty = BiltySerializer(obj.bill_by.bilty).data
+        return bilty
+        
+    def get_net_qty(self, obj):
+        billitems = obj.billitems
+        qty=0
+        for billitem in billitems:
+            qty +=billitem['net_qty']
+        return qty
+    
+    def get_qty(self, obj):
+        billitems = obj.billitems
+        qty=0
+        for billitem in billitems:
+            qty +=billitem['qty']
+        return qty
+    
+    def get_uom(self, obj):
+        billitems = obj.billitems
+        uom=0
+        for billitem in billitems:
+            uom +=billitem['uom']
+        return uom
+    def get_consignee(self,obj):
+        return ConsigneeSerializer(obj.bill_to).data
+    def get_consignor(self,obj):
+        return ConsignorSerializer(obj.bill_by).data
 
 class ForPrintingBillSerializer(serializers.ModelSerializer):
     bill_tos = serializers.SerializerMethodField()
@@ -92,7 +156,9 @@ class ForPrintingBillSerializer(serializers.ModelSerializer):
     class Meta:
         model = BillDetail
         fields = '__all__'
-    
+    def get_bilty_info(self,obj):
+        bilty = BiltySerializer(obj.bill_by.bilty).data
+        return bilty
     def get_date(self,obj):
         return obj.date.strftime("%d %b %Y ")
     
@@ -113,9 +179,11 @@ class ForPrintingBillSerializer(serializers.ModelSerializer):
         return BillToSerializer(obj.bill_to).data
     def get_bill_bys(self,obj):
         return BillBySerializer(obj.bill_by).data
-    
+
+
+class BiltySerializer(serializers.ModelSerializer):
     class Meta:
-        model = BillDetail
+        model = Bilty
         fields = '__all__'
 
 

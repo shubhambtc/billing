@@ -6,25 +6,20 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import User
 from .serializers import UserSerializer
-from .utils import PDF, gstin
+from .utils import PDF, BiltyPdf
 from django.http import HttpResponse
-from django.db.models import Sum
 from django.core.files import File
 import time
 import csv
 from django.http import HttpResponse
-from datetime import date, datetime
-from rest_framework import generics, mixins
+from datetime import datetime
+from rest_framework import generics
 from rest_framework import filters
 from django.db.models import Q
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
-from django.contrib.auth import get_user_model
-from rest_framework import exceptions
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import permission_classes
-from .serializers import RegistrationSerializer, LoginSerializer
+from .serializers import  LoginSerializer
 from bills.models import BillTo, BillBy, BillDetail
-from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer
+from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer, ForPrintingBiltySerializer
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
@@ -220,7 +215,10 @@ def get_page_pdf(pdf, biltype,billdetail):
     pdf.mandi_in_internal_border()
     pdf.company_name(billdetail['bill_bys'])
     pdf.set_bill_type(biltype)
-    pdf.set_date_vehicle(billdetail['invoice_no'], billdetail['date'], billdetail['vehicle_no'])
+    if billdetail['bill_bys']['types']=="mandi_in":
+        pdf.set_date_vehicle_s(billdetail['invoice_no'], billdetail['date'], billdetail['vehicle_no'],billdetail['gatepass'],billdetail['nine_r'])
+    else:
+        pdf.set_date_vehicle(billdetail['invoice_no'], billdetail['date'], billdetail['vehicle_no'])
     pdf.set_detail(billdetail['bill_tos'],billdetail['bill_tos']['ship_details'])
     pdf.bill_items(billdetail['billitems'])
     pdf.remarks(billdetail['remarks'])
@@ -238,7 +236,34 @@ def gen_pdf(billdetail):
     get_page_pdf(pdf, 'Triplicate',billdetail)
     pdf.output('invoices.pdf','F')
     return pdf
+def get_page_bilty_pdf(pdf, types,biltydetail):
+    pdf.side_border()
+    pdf.all_border()
+    pdf.header_s(biltydetail['bilty_info'],types)
+    pdf.all_data_print(biltydetail['consignor'], biltydetail['consignee'],{
+            "item":biltydetail['item'],
+            "bilty_type":biltydetail['bilty_type'],
+            "frieght_per_qtl":biltydetail['frieght_per_qtl'],
+            "advance":biltydetail['frieght'],
+            "uom":biltydetail['uom'],
+            "qty": biltydetail['qty'],
+            "net_qty": biltydetail['net_qty']
+        },biltydetail['all_up'])
+def gen_bilty(biltydetail):
+    pdf = BiltyPdf()
+    get_page_bilty_pdf(pdf, 'Original',biltydetail)
+    get_page_bilty_pdf(pdf, 'Duplicate',biltydetail)
+    get_page_bilty_pdf(pdf, 'Triplicate',biltydetail)
+    pdf.output('media/bilty.pdf','F')
+    return pdf
 
+class Biltys(APIView):
+    permission_classes=[AllowAny]
+    def get(self,request,pk):
+        biltydetail = BillDetail.objects.get(pk=pk)
+        biltydetail = ForPrintingBiltySerializer(biltydetail).data
+        pdf = gen_bilty(biltydetail)
+        return Response({"url":"http://127.0.0.1:8000/media/bilty.pdf"})
 class Bill(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, pk):
@@ -510,7 +535,15 @@ class BillResourceAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def patch(self, request, pk):
-        request.data['date'] = request.data['date'][:10]
+        try:
+            request.data['date'] = request.data['date'][:10]
+        except:
+            pass
+        try:
+            inv = get_invoice_s(request.data['bill_by'],request.data['invoice_no'],request.data['date'])
+            request.data['invoice_no'] = inv
+        except:
+            pass
         try:
             resource_item = self.model.objects.get(pk=pk)
         except self.model.DoesNotExist:

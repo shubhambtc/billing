@@ -21,7 +21,7 @@ from .views import CustomTokenObtainPairView, favicon, index, image, logo, defau
 from rest_framework_simplejwt import views as jwt_views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/login/',CustomTokenObtainPairView.as_view(),name ='token_obtain_pair'),
+    path('api/users/login/',jwt_views.TokenObtainPairView.as_view(),name ='token_obtain_pair'),
     path('api/token/refresh/',jwt_views.TokenRefreshView.as_view()),
     path('api/',include('authentication.urls')),
     path('api/',include('bills.urls')),
