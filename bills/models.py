@@ -32,6 +32,8 @@ class Bilty(models.Model):
     mob=models.CharField(max_length=255,blank=True,null=True)
     gstin=models.CharField(max_length=255,blank=True,null=True)
     is_active = models.BooleanField(default=True)
+    types = models.IntegerField(null=True, blank=True)
+    nos = models.JSONField(default=dict)
 class BillBy(models.Model):
     name = models.CharField(max_length=255)
     shortname=models.CharField(max_length=255, null=True,blank=True)
@@ -57,6 +59,7 @@ BT_CHOICES = [('to_pay','To Pay'), ('for','F. O. R')]
 
 class BillDetail(models.Model):
     invoice_no = models.CharField(max_length=255, blank=True, null=True)
+    bilty_no = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField()
     vehicle_no = models.CharField(max_length=255, blank=True, null=True)
     bill_to = models.ForeignKey(BillTo, on_delete=models.CASCADE)

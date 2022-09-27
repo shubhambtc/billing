@@ -107,7 +107,7 @@ class ForPrintingBiltySerializer(serializers.ModelSerializer):
     item = serializers.SerializerMethodField()
     class Meta:
         model = BillDetail
-        fields = ('consignee','consignor','net_qty','uom','qty','frieght_per_qtl','bilty_info','bilty_type','item','frieght','all_up')
+        fields = ('consignee','consignor','net_qty','uom','qty','frieght_per_qtl','bilty_info','bilty_type','item','frieght','all_up','date','invoice_no')
     def get_item(self,obj):
         return obj.billitems[0]['item']
     def get_all_up(self,obj):

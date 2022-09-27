@@ -193,7 +193,6 @@ def get_invoice(x,y):
     spli += str(bill_count).zfill(3)
     b.invoice_nos[year]=bill_count
     b.save()
-    print(spli)
     return spli
 
 def get_invoice_s(x, y,z):
@@ -564,6 +563,17 @@ class BillResourceAPIView(APIView):
             else:
                 inv = get_invoice_s(request.data['bill_by'],request.data['invoice_no'],request.data['date'])
                 request.data['invoice_no'] = inv
+            bilty = BillBy.objects.get(pk=request.data['bill_by']).bilty
+            if bilty.types ==1:
+                try:
+                    request.data['bilty_no'] = bilty.nos[request.data['invoice_no'].split("/")[1]]+1
+                    bilty.nos[request.data['invoice_no'].split("/")[1]] = request.data['bilty_no']
+                except:
+                    request.data['bilty_no'] = 1
+                    bilty.nos[request.data['invoice_no'].split("/")[1]] = 1
+            else:
+                request.data['bilty_no'] = request.data['invoice_no'].split("/")[2]
+            bilty.save()
             request.data['expenses'] = BillTo.objects.get(pk=request.data['bill_to']).expense
             serializer = self.resource_serializer(data=request.data)
             if serializer.is_valid():
