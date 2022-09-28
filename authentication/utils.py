@@ -150,7 +150,7 @@ class PDF(FPDF):
         self.set_xy(15, 87)
         self.set_font('Arial', 'B', 11)
         self.cell(40,5, "9R Number:", 0, 0,'L')
-        self.set_xy(35, 87)
+        self.set_xy(45, 87)
         self.set_font('Arial', '', 11)
         self.cell(70,5, nine_r if nine_r else "", 0, 0,'L')
         self.set_xy(105, 77)
