@@ -34,11 +34,11 @@ class BillDetailCSV(APIView):
             count =0
             for row in csv_table:
                 billitem = [{
-                    "uom" : row['uom'],
+                    "uom" : int(row['uom']),
                     "item": row['item'],
-                    "qty": row['qty'],
-                    "net_qty": row['net_qty'],
-                    "rate":row['rate'],
+                    "qty": float(row['qty']),
+                    "net_qty": float(row['net_qty']),
+                    "rate":float(row['rate']),
                     "po_number": ""
                 }]
                 bill_by = BillBy.objects.get(pk=row['bill_by'])
@@ -50,11 +50,11 @@ class BillDetailCSV(APIView):
                     bill_to =bill_to,
                     bill_by =bill_by,
                     bw =row['bw'],
-                    frieght =row['advance'],
+                    frieght =int(row['advance']),
                     expenses =bill_to.expense,
                     billitems =billitem,
                     bilty_type =row['bilty'],
-                    frieght_per_qtl =row['freight_per_qtl']
+                    frieght_per_qtl =int(row['freight_per_qtl'])
                 )
                 count = count +1
             response['count'] = count
