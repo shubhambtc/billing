@@ -333,17 +333,18 @@ class PDF(FPDF):
         self.cell(25,8,str(round(total_amt,2)), 0, 1,'R')
         
     def expense(self, bags, weight,expenses):
-        amount = self.all_details['total_amt']
+        amount = self.all_details['total_amt']/100
+        arr = [0,bags,weight,amount]
         exp = {}
-        exp['tulai'] = round(expenses['tulai']*amount/100,2) if expenses else 0
-        exp['dharmada'] = round(expenses['dharmada']*amount/100,2) if expenses else 0
-        exp['wages'] = round(expenses['wages']*weight,2) if expenses else 0
-        exp['sutli'] = round(expenses['sutli']*bags,2) if expenses else 0
-        exp['commision'] = round(expenses['commision']*amount/100,2) if expenses else 0
-        exp['loading_charges'] = round(expenses['loading_charges']*bags,2) if expenses else 0
-        exp['vikas_shulk'] = round(expenses['vikas_shulk']*amount/100,2) if expenses else 0
-        exp['mandi_shulk'] = round(expenses['mandi_shulk']*amount/100,2) if expenses else 0
-        exp['bardana'] = round(expenses['bardana']*bags,2) if expenses else 0
+        exp['tulai'] = round(expenses['tulai']*arr[int(expenses['tulai_s'])],2) if expenses else 0
+        exp['dharmada'] = round(expenses['dharmada']*arr[int(expenses['dharmada_s'])],2) if expenses else 0
+        exp['wages'] = round(expenses['wages']*arr[int(expenses['wages_s'])],2) if expenses else 0
+        exp['sutli'] = round(expenses['sutli']*arr[int(expenses['sutli_s'])],2) if expenses else 0
+        exp['commision'] = round(expenses['commision']*arr[int(expenses['commision_s'])],2) if expenses else 0
+        exp['loading_charges'] = round(expenses['loading_charges']*arr[int(expenses['loading_charges_s'])],2) if expenses else 0
+        exp['vikas_shulk'] = round(expenses['vikas_shulk']*arr[int(expenses['vikas_shulk_s'])],2) if expenses else 0
+        exp['mandi_shulk'] = round(expenses['mandi_shulk']*arr[int(expenses['mandi_shulk_s'])],2) if expenses else 0
+        exp['bardana'] = round(expenses['bardana']*arr[int(expenses['bardana_s'])],2) if expenses else 0
         exp['others'] = round(expenses['others'],2) if expenses else 0
         exp['total'] = round(sum(exp.values()),2)
         self.all_details['expenses'] = exp['total']
