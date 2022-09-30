@@ -21,7 +21,8 @@ from .serializers import  LoginSerializer
 from bills.models import BillTo, BillBy, BillDetail
 from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer, ForPrintingBiltySerializer
 from rest_framework.pagination import LimitOffsetPagination
-
+from orders.models import LoadingOrders, OrderParty, Purchaseorder, SalesOrder, UnloadingOrders,LoadingUnloading
+from orders.serializers import LoadingSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
 def getbillrowwithexpense(bill):
@@ -578,7 +579,9 @@ class BillResourceAPIView(APIView):
             serializer = self.resource_serializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                data=serializer.data
+                LoadingUnloadingFun(data['id'])
+                return Response(data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request,pk):
@@ -602,3 +605,53 @@ class BillResourceAPIView(APIView):
             resource_item.is_active = False
             resource_item.save()
             return Response({"status":"updated successfully"})
+
+
+def LoadingUnloadingFun(x):
+    data = BillDetail.objects.get(pk=x)
+    if data.billitems[0]['item'].startswith("paddy"):
+        p = Purchaseorder.objects.get(pk=29)
+        total_qty = 0
+        total_bags = 0
+        for billitem in data.billitems:
+            total_qty += billitem['qty']
+            total_bags +=billitem['uom']
+        loadingunloading = {
+            "loading_from" : [data.bill_by.loading_from.id],
+            "date" : data.date,
+            "genes" : "paddy",
+            "vehicle_number": data.vehicle_no,
+            "quantity": total_qty,
+            "freight": data.frieght_per_qtl,
+            "frieght_paid_at_loading": data.frieght,
+            "bill_or_builty": "bill",
+            "unloaded": True,
+            "unloaded_to": [data.bill_to.unloaded_to.id],
+            "unloading_date":data.date,
+            "unloaded_quantity": total_qty}
+        serial = LoadingSerializer(data = loadingunloading)
+        if serial.is_valid():
+            serial.save()
+        loadingunloadingobj = LoadingUnloading.objects.get(pk=serial.data['id'])
+        loading = {
+                    "loading_party": data.bill_by.loading_from,
+                    "loading": loadingunloadingobj,
+                    "purchase_order" : p,
+                    "quantity_loaded" : total_qty,
+                    "quantity" : total_bags
+                }
+        LoadingOrders.objects.create(**loading)
+        for billitem in data.billitems:
+            s = SalesOrder.objects.filter(po_number=billitem['po_number'],genes=billitem['item'],completed=False)
+            if s:
+                unloading = {
+                    "unloading_party": data.bill_to.unloaded_to,
+                    "loading": loadingunloadingobj,
+                    "sales_order" : s[0],
+                    "quantity_unloaded" : billitem['qty'],
+                    "quantity" : billitem['uom']
+                }
+                UnloadingOrders.objects.create(**unloading)
+        return
+    else:
+        return

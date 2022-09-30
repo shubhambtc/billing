@@ -36,7 +36,7 @@ class SalesOrder(models.Model):
     remarks = models.CharField(max_length=255,null=True,blank=True)
     pending = models.FloatField(null=True,blank=True)
     is_active = models.BooleanField(default=True)
-
+    completed = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:

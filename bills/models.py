@@ -2,6 +2,8 @@ from email.policy import default
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
 from ckeditor.fields import RichTextField
+
+from orders.models import OrderParty
 # Create your models here.
 BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
@@ -23,6 +25,7 @@ class BillTo(models.Model):
     ship_details = models.JSONField(default=dict,null=True,blank=True)
     party_username = models.CharField(max_length=255,null=True,blank=True)
     expense = models.JSONField(default=dict,null=True,blank=True)
+    unloaded_to = models.ForeignKey(OrderParty, null=True, blank=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
 
@@ -50,6 +53,7 @@ class BillBy(models.Model):
     invoice_nos = models.JSONField(default=dict)
     sign = models.ImageField(upload_to="sign", blank=True,null=True)
     is_active = models.BooleanField(default=True)
+    loading_from = models.ForeignKey(OrderParty, null=True, blank=True,on_delete=models.CASCADE)
     bilty=models.ForeignKey(Bilty,null=True,blank=True, on_delete=models.CASCADE)
     bilty_add = models.CharField(null=True, blank=True, max_length=100)
     types = models.CharField(default="mandi_in",max_length=255)
