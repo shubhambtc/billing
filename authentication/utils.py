@@ -520,9 +520,9 @@ class PDF(FPDF):
     
     def remarks(self,remarks):
         if remarks:
-            self.set_font('Arial', '', 12)
-            self.set_xy(25, 185)
-            self.cell(60,10,remarks, 0, 1,'L')
+            self.set_font('Arial', '', 10)
+            self.set_xy(25, 175)
+            self.multi_cell(60,6,remarks, 0, 1,'L')
 
 
 
