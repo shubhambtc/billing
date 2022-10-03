@@ -2,9 +2,10 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import LoadingOrders, LoadingUnloading, Purchaseorder, SalesOrder, UnloadingOrders
 from .serializers import LoadingOrdersSerializer, LoadingSerializer, PurchaseorderSerializer, PurchaseorderInsideSerializer, UnloadingOrdersSerializer, SalesOrderInsideSerializer
+from django.db.models import Sum
 # Create your views here.
 
 class GetPendingOrder(APIView):
@@ -235,3 +236,32 @@ class UnloadingResourceView(APIView):
             return Response({'message': 'The resource deleted successfully'},status=status.HTTP_200_OK)
         except:
             return Response({'message': 'The resource does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderDasboard(APIView):
+    permission_classes=[AllowAny]
+
+    def get(self,request):
+        s1 = SalesOrder.objects.filter(pending__gt=0,genes__startswith="paddy").values('party__name','genes','unit').annotate(Sum('pending')).order_by('party__name')
+        name = s1[0]['party__name']
+        new_dict = {
+            name: []
+        }
+        for s in s1:
+            if s['party__name'] == name:
+                new_dict[name].append(s)
+            else:
+                name = s['party__name']
+                new_dict[name] = [s]
+        s2 = SalesOrder.objects.filter(genes__startswith="paddy").values('party__name','genes','unit').annotate(Sum('quantity'))
+        name = s1[0]['party__name']
+        new_dict2 = {
+            name: []
+        }
+        for s in s2:
+            if s['party__name'] == name:
+                new_dict2[name].append(s)
+            else:
+                name = s['party__name']
+                new_dict2[name] = [s]
+        return Response({"pending":new_dict,"total":new_dict2})

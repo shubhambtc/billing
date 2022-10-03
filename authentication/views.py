@@ -642,7 +642,7 @@ def LoadingUnloadingFun(x):
                 }
         LoadingOrders.objects.create(**loading)
         for billitem in data.billitems:
-            s = SalesOrder.objects.filter(po_number=billitem['po_number'],genes=billitem['item'],completed=False)
+            s = SalesOrder.objects.filter(po_number=billitem['po_number'],genes=billitem['item'],pending__gt=0)
             if s:
                 unloading = {
                     "unloading_party": data.bill_to.unloaded_to,

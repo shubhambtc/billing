@@ -2,7 +2,7 @@ from django.urls import path
 from .models import LoadingUnloading, OrderParty, Purchaseorder, SalesOrder
 from .serializers import LoadingSerializer, OrderPartySerializer, SalesOrderSerializer, PurchaseorderSerializer,DetailedPurchaseOrderSerializer,DetailedSalesOrderSerializer, DetailedUnloadingSerializer
 from authentication.views import ResourceAPIView, GetListView
-from .views import GetPendingSalesOrder, LoadingResourceView, GetPendingOrder, UnloadingResourceView
+from .views import GetPendingSalesOrder, LoadingResourceView, GetPendingOrder, UnloadingResourceView, OrderDasboard
 urlpatterns = [
     path('get-purchase-orders/<int:pk>',GetPendingOrder.as_view()),
     path('get-sales-orders/<int:pk>',GetPendingSalesOrder.as_view()),
@@ -52,4 +52,5 @@ urlpatterns = [
         resource_serializer=LoadingSerializer,
         search_fields = ["genes","vehicle_number","bill_or_builty"]
     )),
+    path('dashboard',OrderDasboard.as_view()),
 ]
