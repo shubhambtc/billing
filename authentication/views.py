@@ -663,3 +663,35 @@ def LoadingUnloadingFun(x,y):
         return
     else:
         return
+
+
+class UpdateAll(APIView):
+    permission_classes=[AllowAny]
+    def get(self,request):
+        ids = [4,16,8,5]
+        ls = [
+            {"quality": "NO. 2", "quantity": "200", "qualitys": {"label": "NO. 2", "value": "NO. 2"}},
+            {"quality": "NO. 2", "quantity": "200", "qualitys": {"label": "NO. 2", "value": "NO. 2"}},
+            {"quality": "Jute Bardana", "quantity": "200", "qualitys": {"label": "Jute Bardana", "value": "Jute Bardana"}},
+            {"quality": "NO. 4", "quantity": "200", "qualitys": {"label": "NO. 4", "value": "NO. 4"}}
+        ]
+        temp = datetime.strptime('Sep 01, 2022', '%b %d, %Y')
+        dt = temp.strftime('%Y-%m-%d')
+        bs = BillDetail.objects.filter(bill_to__id__in=ids,date__gte=dt).order_by('bill_to__id')
+        for b in bs:
+            if not b.bardana_details:
+                index = ids.index(b.bill_to.id)
+                bardana_dict = ls[index]
+                bardana_dict['quantity'] = sum(d['uom'] for d in b.billitems)
+                print(bardana_dict)
+                b.bardana_details = [bardana_dict]
+                b.save()
+        for b in bs:
+            for a in b.bardana_details:
+                dict_BardanaOutward = { "party" : b.bill_to.unloaded_to,
+                "quality" : a['quality'],
+                "quantity" : a['quantity'],
+                "bill_no" : b.invoice_no,
+                "vehicle_no" : b.vehicle_no}
+                BardanaOutward.objects.create(**dict_BardanaOutward)
+        return Response("success")
