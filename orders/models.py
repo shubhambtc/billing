@@ -129,3 +129,43 @@ class UnloadingOrders(models.Model):
         self.is_active=False
         super(UnloadingOrders, self).delete(*args,**kwargs)
 
+
+class PartyBardanaBalance(models.Model):
+    party = models.ForeignKey(OrderParty, on_delete=models.CASCADE,null=True,blank=True, related_name="bardanabalaceparty")
+    quantity = models.IntegerField(default=0)
+    quality = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+class BardanaInward(models.Model):
+    party = models.ForeignKey(OrderParty, on_delete=models.CASCADE,null=True,blank=True, related_name="bardanainparty")
+    quantity = models.IntegerField()
+    freight_amount = models.FloatField()
+    vehicle_no = models.CharField(max_length=255)
+    date = models.DateField()
+    quality = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            print(self)
+            b = PartyBardanaBalance.objects.get_or_create(party=self.party, quality=self.quality)
+            print(b[0].quantity)
+            print(self.quantity)
+            b[0].quantity+=int(self.quantity)
+            b[0].save()
+        super(BardanaInward, self).save(*args, **kwargs)
+
+class BardanaOutward(models.Model):
+    party = models.ForeignKey(OrderParty, on_delete=models.CASCADE,null=True,blank=True, related_name="bardanaoutarty")
+    quantity = models.IntegerField()
+    bill_no = models.CharField(max_length=255)
+    vehicle_no = models.CharField(max_length=255)
+    quality = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            b = PartyBardanaBalance.objects.get_or_create(party=self.party, quality=self.quality)
+            b[0].quantity-=int(self.quantity)
+            b[0].save()
+        super(BardanaOutward, self).save(*args, **kwargs)

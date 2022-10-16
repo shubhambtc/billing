@@ -415,6 +415,25 @@ class PDF(FPDF):
         self.set_font('Arial', '', 12)  
         self.set_xy(170, 203)
         self.cell(25,8,str(round(exp['total'],2)), 0, 1,'R')
+    
+    def amount_to_words_with_bardana(self, amount,bardana_desc):
+        word = number_to_word(amount)
+        self.set_font('Arial', 'B', 11)
+        self.set_xy(15, 219)
+        self.cell(40,6,"Amount in Word", 0, 1,'L')
+        self.set_font('Arial', '', 9)
+        self.set_xy(15, 225)
+        self.multi_cell(90,5,word, 0, 1,'L')
+        self.set_font('Arial', 'B', 11)
+        self.set_xy(105, 219)
+        self.line(105,219,105,235)
+        self.cell(40,6,"Bardana Description", 0, 1,'L')
+        self.set_font('Arial', '', 9)
+        self.set_xy(105, 225)
+        str1 = ""
+        for b in bardana_desc:
+            str1 = str1+b['quality'] + ": " + str(b['quantity']) +" Bags\n"
+        self.multi_cell(50,5,str1, 0, 1,'L')
 
     def amount_to_words(self, amount):
         word = number_to_word(amount)
@@ -476,7 +495,7 @@ class PDF(FPDF):
         self.set_font('Arial', '', 10)
         self.cell(55,2,"Authorised Signatory", 0,0,'C')
     
-    def final_fun(self, frieght):
+    def final_fun(self, frieght, bardana_desc):
         total = self.all_details['total_amt'] + self.all_details['expenses']
         round_off = round(round_school(total)-round(total,2),2)
         self.set_xy(145, 211)
@@ -506,7 +525,10 @@ class PDF(FPDF):
         self.set_xy(170, 235)
         self.set_font('Arial', '', 12)
         self.cell(25,17,str(total), 0,0,'R')
-        self.amount_to_words(total)
+        if bardana_desc:
+            self.amount_to_words_with_bardana(total, bardana_desc)
+        else:
+            self.amount_to_words(total)
     
     def total_s(self,qty,uom):
         self.set_xy(85, 185)

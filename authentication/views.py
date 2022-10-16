@@ -21,7 +21,7 @@ from .serializers import  LoginSerializer
 from bills.models import BillTo, BillBy, BillDetail
 from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer, ForPrintingBiltySerializer
 from rest_framework.pagination import LimitOffsetPagination
-from orders.models import LoadingOrders, OrderParty, Purchaseorder, SalesOrder, UnloadingOrders,LoadingUnloading
+from orders.models import BardanaOutward, LoadingOrders, OrderParty, Purchaseorder, SalesOrder, UnloadingOrders,LoadingUnloading
 from orders.serializers import LoadingSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
@@ -227,7 +227,7 @@ def get_page_pdf(pdf, biltype,billdetail):
         pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_uom'], expenses=billdetail['expenses'])
     else:
         pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_qty'], expenses=billdetail['expenses'])
-    pdf.final_fun(billdetail['frieght'])
+    pdf.final_fun(billdetail['frieght'], billdetail['bardana_details'])
     pdf.total_s(billdetail['total_qty'],billdetail['total_uom'])
 
 def gen_pdf(billdetail):
@@ -580,7 +580,7 @@ class BillResourceAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 data=serializer.data
-                LoadingUnloadingFun(data['id'])
+                LoadingUnloadingFun(data['id'],data['bardana_details'])
                 return Response(data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -607,7 +607,7 @@ class BillResourceAPIView(APIView):
             return Response({"status":"updated successfully"})
 
 
-def LoadingUnloadingFun(x):
+def LoadingUnloadingFun(x,y):
     data = BillDetail.objects.get(pk=x)
     if data.billitems[0]['item'].startswith("paddy"):
         p = Purchaseorder.objects.get(pk=29)
@@ -616,6 +616,14 @@ def LoadingUnloadingFun(x):
         for billitem in data.billitems:
             total_qty += billitem['qty']
             total_bags +=billitem['uom']
+        if y:
+            for a in y:
+                dict_BardanaOutward = { "party" : data.bill_to.unloaded_to,
+                "quality" : a['quality'],
+                "quantity" : a['quantity'],
+                "bill_no" : data.invoice_no,
+                "vehicle_no" : data.vehicle_no}
+                BardanaOutward.objects.create(**dict_BardanaOutward)
         loadingunloading = {
             "loading_from" : [data.bill_by.loading_from.id],
             "date" : data.date,

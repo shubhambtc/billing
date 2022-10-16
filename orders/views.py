@@ -3,8 +3,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import LoadingOrders, LoadingUnloading, Purchaseorder, SalesOrder, UnloadingOrders
-from .serializers import LoadingOrdersSerializer, LoadingSerializer, PurchaseorderSerializer, PurchaseorderInsideSerializer, UnloadingOrdersSerializer, SalesOrderInsideSerializer
+
+from bills.models import BillTo
+from .models import LoadingOrders, LoadingUnloading, PartyBardanaBalance, Purchaseorder, SalesOrder, UnloadingOrders
+from .serializers import BardanaBalanceSerializer, LoadingOrdersSerializer, LoadingSerializer, PurchaseorderSerializer, PurchaseorderInsideSerializer, UnloadingOrdersSerializer, SalesOrderInsideSerializer
 from django.db.models import Sum
 # Create your views here.
 
@@ -264,4 +266,21 @@ class OrderDasboard(APIView):
             else:
                 name = s['party__name']
                 new_dict2[name] = [s]
-        return Response({"pending":new_dict,"total":new_dict2})
+        b = PartyBardanaBalance.objects.all()
+        b = BardanaBalanceSerializer(b, many=True).data
+        return Response({"pending":new_dict,"total":new_dict2, "bardana":b})
+
+
+class BardanaOptionsView(APIView):
+    permission_classes=[AllowAny]
+
+    def get(self,request,pk):
+        b = BillTo.objects.get(pk=pk)
+        pbb = PartyBardanaBalance.objects.filter(party = b.unloaded_to)
+        lst = []
+        for pb in pbb:
+            lst.append({
+                "label":pb.quality,
+                "value":pb.quality
+            })
+        return Response(lst)

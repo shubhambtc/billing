@@ -2,8 +2,6 @@ from email.policy import default
 from django.db import models
 from billsystem.storage_backends import OverwriteStorage
 from ckeditor.fields import RichTextField
-
-from orders.models import OrderParty
 # Create your models here.
 BILL_TYPE_CHOICES = [
     ('MandiIn','MandiIn'),
@@ -15,6 +13,7 @@ BILL_INFO_CHOICES = [
 ]
 
 class BillTo(models.Model):
+    from orders.models import OrderParty
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
@@ -38,6 +37,7 @@ class Bilty(models.Model):
     types = models.IntegerField(null=True, blank=True)
     nos = models.JSONField(default=dict)
 class BillBy(models.Model):
+    from orders.models import OrderParty
     name = models.CharField(max_length=255)
     shortname=models.CharField(max_length=255, null=True,blank=True)
     gstin = models.CharField(max_length=255)
@@ -74,6 +74,7 @@ class BillDetail(models.Model):
     invoice = models.FileField(upload_to="invoices",default=None, blank=True, null=True, storage=OverwriteStorage())
     expenses = models.JSONField(default=dict)
     billitems = models.JSONField(default=list)
+    bardana_details = models.JSONField(default=list)
     is_active = models.BooleanField(default=True)
     nine_r = models.CharField(max_length=255,blank=True,null=True)
     gatepass = models.CharField(max_length=255, blank=True, null=True)
