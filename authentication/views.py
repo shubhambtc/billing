@@ -21,8 +21,8 @@ from .serializers import  LoginSerializer
 from bills.models import BillTo, BillBy, BillDetail
 from bills.serializers import BillDetailsSerializer, BillDetailSerializer,BillDetailSerializer,ForPrintingBillSerializer, ForPrintingBiltySerializer
 from rest_framework.pagination import LimitOffsetPagination
-from orders.models import BardanaOutward, LoadingOrders, OrderParty, Purchaseorder, SalesOrder, UnloadingOrders,LoadingUnloading
-from orders.serializers import LoadingSerializer
+from orders.models import BardanaOutward, LoadingOrders, OrderParty, Purchaseorder, SalesOrder, UnloadingOrders,LoadingUnloading, BardanaInward
+from orders.serializers import BardanaOutwardSerializer, LoadingSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
 def getbillrowwithexpense(bill):
@@ -158,14 +158,14 @@ class getbillwisecsv(APIView):
         return response
 class getcsv(APIView):
     def get(self, request, pk):
-            Bills = BillDetail.objects.filter(bill_to=pk)
-            projects = Bills.billitems
+            bardanainward = BardanaOutward.objects.filter(party__id=59)
+            projects = BardanaOutwardSerializer(bardanainward, many=True)
             projects = projects.data
             if projects:
                 fields_header = projects[0].keys()
             else:
                 fields_header = []
-            filename = "{0}.csv".format("projects")
+            filename = "{0}.csv".format("bardanainward")
             response = HttpResponse(
                 content_type='text/csv',
                 headers={'Content-Disposition': 'attachment; filename="projects.csv"'},

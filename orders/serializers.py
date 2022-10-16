@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import  OrderParty, PartyBardanaBalance,SalesOrder,Purchaseorder, LoadingUnloading, LoadingOrders, UnloadingOrders
+from .models import  BardanaOutward, OrderParty, PartyBardanaBalance,SalesOrder,Purchaseorder, LoadingUnloading, LoadingOrders, UnloadingOrders
 
 class OrderPartySerializer(serializers.ModelSerializer):
     class Meta:
@@ -204,3 +204,9 @@ class BardanaBalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model=PartyBardanaBalance
         fields = ('id','quality','quantity','party_name')
+
+class BardanaOutwardSerializer(serializers.ModelSerializer):
+    party_name = serializers.CharField(source='party.name',read_only=True)
+    class Meta:
+        model=BardanaOutward
+        fields = ('id','quality','quantity','party_name','vehicle_no','bill_no')
