@@ -158,9 +158,8 @@ class getbillwisecsv(APIView):
         return response
 class getcsv(APIView):
     def get(self, request, pk):
-            bardanainward = BardanaOutward.objects.filter(party__id=59)
-            projects = BardanaOutwardSerializer(bardanainward, many=True)
-            projects = projects.data
+            Bills = BillDetail.objects.filter(bill_to__id=pk).values_list('bardana_details')
+            projects = Bills
             if projects:
                 fields_header = projects[0].keys()
             else:
@@ -168,7 +167,7 @@ class getcsv(APIView):
             filename = "{0}.csv".format("bardanainward")
             response = HttpResponse(
                 content_type='text/csv',
-                headers={'Content-Disposition': 'attachment; filename="projects.csv"'},
+                headers={'Content-Disposition': 'attachment; filename="bardanaoutward.csv"'},
             )
             writer = csv.DictWriter(response,fieldnames = fields_header)
             writer.writeheader()
