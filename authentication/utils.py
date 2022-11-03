@@ -3,6 +3,7 @@ genes = {
     "paddy":["100610", "Paddy"],
     "paddy sarbati" : ["100610","paddy sarbati"],
     "paddy sugandh" : ["100610","paddy sugandh"],
+    "paddy sugandh 2nd" : ["100610","paddy sugandh"],
     "paddy 1509" : ["100610","paddy 1509"],
     "paddy 1509 2nd": ["100610","paddy 1509"],
     "paddy RS10" : ["100610","paddy RS10"],
