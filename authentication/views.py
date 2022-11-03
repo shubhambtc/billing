@@ -26,67 +26,68 @@ from orders.serializers import BardanaOutwardSerializer, LoadingSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from six import text_type
 def getbillrowwithexpense(bill):
-    billitems = bill.billitems
-    amount = 0
-    bags=0 
-    weight=0
-    for billitem in billitems:
-        amount += billitem['qty']*billitem['rate']
-        bags += billitem['uom']
-        weight += billitem['qty']
-    expenses = bill.bill_to.expense
-    if expenses:
-        tulai = round(float(expenses.tulai)*amount/100,2)
-        dharmada = round(float(expenses.dharmada)*amount/100,2)
-        wages = round(float(expenses.wages)*weight,2)
-        sutli = round(float(expenses.sutli)*bags,2)
-        loading_charges = round(float(expenses.loading_charges)*bags,2)
-        vikas_shulk = round(float(expenses.vikas_shulk)*amount/100,2)
-        mandi_shulk = round(float(expenses.mandi_shulk)*amount/100,2)
-        bardana = round(float(expenses.bardana)*bags,2)
-        others = round(float(expenses.others),2)
-    else:
-        tulai = 0
-        dharmada = 0
-        wages = 0
-        sutli = 0
-        loading_charges = 0
-        vikas_shulk = 0
-        mandi_shulk = 0
-        bardana = 0
-        others = 0
-    freight = bill.frieght
-    if expenses:
-        comission = round(float(expenses.commision)*amount/100,2)
-    else:
-        comission=0
-    return {
-        "bill_no" : bill.invoice_no,
-        "vehicle_no": bill.vehicle_no,
-        "party" : bill.bill_to.name,
-        "date":bill.date,
-        "bags":bags,
-        "qty": weight,
-        "amount":amount,
-        "comission":comission,
-        "tulai" :tulai,
-        "dharmada":dharmada,
-        "wages" :wages,
-        "sutli" :sutli,
-        "loading_charges" :loading_charges,
-        "vikas_shulk" :vikas_shulk,
-        "mandi_shulk" :mandi_shulk,
-        "bardana" :bardana,
-        "others" :others,
-        "freight":freight,
-    }
+        billitems = bill.billitems
+        amount = 0
+        bags=0 
+        weight=0
+        for billitem in billitems:
+            amount += float(billitem['qty'])*float(billitem['rate'])
+            bags += float(billitem['uom'])
+            weight += float(billitem['qty'])
+        expenses = bill.expenses
+        arr = [0,bags,weight,amount]
+        if expenses:
+            tulai = round(expenses['tulai']*arr[int(expenses['tulai_s'])],2) if expenses else 0
+            dharmada = round(expenses['dharmada']*arr[int(expenses['dharmada_s'])],2) if expenses else 0
+            wages = round(expenses['wages']*arr[int(expenses['wages_s'])],2) if expenses else 0
+            sutli = round(expenses['sutli']*arr[int(expenses['sutli_s'])],2) if expenses else 0
+            loading_charges = round(expenses['loading_charges']*arr[int(expenses['loading_charges_s'])],2) if expenses else 0
+            vikas_shulk= round(expenses['vikas_shulk']*arr[int(expenses['vikas_shulk_s'])],2) if expenses else 0
+            mandi_shulk = round(expenses['mandi_shulk']*arr[int(expenses['mandi_shulk_s'])],2) if expenses else 0
+            bardana = round(expenses['bardana']*arr[int(expenses['bardana_s'])],2) if expenses else 0
+            others = round(expenses['others'],2) if expenses else 0
+            commision = round(expenses['commision']*arr[int(expenses['commision_s'])],2) if expenses else 0
+        else:
+            tulai = 0
+            dharmada = 0
+            wages = 0
+            sutli = 0
+            loading_charges = 0
+            vikas_shulk = 0
+            mandi_shulk = 0
+            bardana = 0
+            others = 0
+            comission=0
+        freight = bill.frieght
+        return {
+            "bill_no" : bill.invoice_no,
+            "vehicle_no": bill.vehicle_no,
+            "party" : bill.bill_to.name,
+            "date":bill.date,
+            "bags":bags,
+            "qty": weight,
+            "amount":amount,
+            "comission":commision,
+            "tulai" :tulai,
+            "dharmada":dharmada,
+            "wages" :wages,
+            "sutli" :sutli,
+            "loading_charges" :loading_charges,
+            "vikas_shulk" :vikas_shulk,
+            "mandi_shulk" :mandi_shulk,
+            "bardana" :bardana,
+            "others" :others,
+            "freight":freight,
+        }
+
 class getbillwithexpensecsv(APIView):
     def get(self,request,pk):
-        Bills = BillDetail.objects.filter(bill_by=pk)
+        Bills = BillDetail.objects.filter(bill_by=pk, date__gte="2022-09-01")
         getrows = []
         for bill in Bills:
             getrow = getbillrowwithexpense(bill)
-            getrows.append(getrow)
+            if getrow is not None:
+                getrows.append(getrow)
         if getrows:
             fields_header = getrows[0].keys()
         else:
@@ -158,7 +159,7 @@ class getbillwisecsv(APIView):
         return response
 class getcsv(APIView):
     def get(self, request, pk):
-            Bills = BillDetail.objects.filter(bill_to__id=pk).values_list('bardana_details')
+            Bills = BillDetail.objects.filter(bill_to__id=pk)
             projects = Bills
             if projects:
                 fields_header = projects[0].keys()
