@@ -40,7 +40,6 @@ Pillow==9.0.1
 pip-tools==6.3.0
 placebo==0.9.0
 prompt-toolkit==3.0.30
-psycopg2==2.9.3
 PyJWT==2.1.0
 python-dateutil==2.8.2
 python-slugify==5.0.2
