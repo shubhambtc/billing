@@ -215,7 +215,7 @@ class PDF(FPDF):
         self.set_xy(15,100)
         self.cell(20,6,"Name :", 0, 0,'L')
         self.set_xy(35,100)
-        if bill_to['id'] == 12 or bill_to['id'] == 16:
+        if bill_to['id'] == 37 or bill_to['id'] == 16:
             self.set_font('Arial', '', 10)
         else:
             self.set_font('Arial','',12)
@@ -246,7 +246,10 @@ class PDF(FPDF):
         self.set_font('Arial', 'B', 12)
         self.set_xy(105,100)
         self.cell(20,6,"Name :", 0, 0,'L')
-        self.set_font('Arial', '', 12)
+        if bill_to['id'] == 37 or bill_to['id'] == 16:
+            self.set_font('Arial', '', 10)
+        else:
+            self.set_font('Arial','',12)
         self.set_xy(125,100)
         self.cell(70,6,bill_to['name'].title(), 0, 0,'L')
         self.set_xy(105,106)
@@ -476,7 +479,10 @@ class PDF(FPDF):
         self.set_xy(80,252)
         self.cell(55,5,"Pre Authenticated", 0,0,'C')
         self.set_xy(80,257)
-        self.set_font('Times', 'B', 12)
+        if company_name == 'JAI JAGDAMBA TRADING COMPANY':
+            self.set_font('Times','B',10)
+        else:
+            self.set_font('Times', 'B', 12)
         self.cell(55,10,company_name, 0,0,'C')
         if sign:
             self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/"+sign, x = 83, y = 265, w = 49, h = 7, type = 'JPG', link = '')
@@ -488,7 +494,10 @@ class PDF(FPDF):
         self.set_xy(135,252)
         self.cell(60,5,"Certified and Verified", 0,0,'C')
         self.set_xy(135,257)
-        self.set_font('Times', 'B', 14)
+        if company_name == 'JAI JAGDAMBA TRADING COMPANY':
+            self.set_font('Times','B',12)
+        else:
+            self.set_font('Times', 'B', 14)
         self.cell(60,10,company_name, 0,0,'C')
         if sign:
             self.image("/Volumes/T7 Touch/Users/shubham/work/billsystem/" + sign, x = 140, y = 265, w = 49, h = 7, type = 'JPG', link = '')
