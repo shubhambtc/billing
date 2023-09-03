@@ -386,7 +386,7 @@ class GetListView(generics.ListAPIView):
                     queryset, self.search_term,0)
             if self.search_year:
                 queryset = self.get_search_results_own(
-                    queryset, self.search_year,0)
+                    queryset, "/2023-2024/",0)
             if self.search_bill:
                 queryset = self.get_search_results_own(
                     queryset, self.search_bill,1)
