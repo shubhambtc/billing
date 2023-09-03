@@ -475,7 +475,7 @@ class PDF(FPDF):
         self.set_xy(80,252)
         self.cell(55,5,"Pre Authenticated", 0,0,'C')
         self.set_xy(80,257)
-        if company_name == 'JAI JAGDAMBA TRADING COMPANY':
+        if company_name.upper() == 'JAI JAGDAMBA TRADING COMPANY':
             self.set_font('Times','B',10)
         else:
             self.set_font('Times', 'B', 12)
@@ -490,7 +490,7 @@ class PDF(FPDF):
         self.set_xy(135,252)
         self.cell(60,5,"Certified and Verified", 0,0,'C')
         self.set_xy(135,257)
-        if company_name == 'JAI JAGDAMBA TRADING COMPANY':
+        if company_name.upper() == 'JAI JAGDAMBA TRADING COMPANY':
             self.set_font('Times','B',12)
         else:
             self.set_font('Times', 'B', 14)
