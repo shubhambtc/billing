@@ -119,7 +119,7 @@ class PDF(FPDF):
         self.cell(50,10,"GSTIN: "+obj['gstin'].upper(), 0,0,'L')
         self.pre_authenticated(obj['name'].title(),obj['sign'])
         self.signatory(obj['name'].title(),obj['sign'])
-        self.terms_conditions()
+        self.terms_conditions(obj['id'])
         bank_dict = {
             "bank_name": obj['bank_name'],
             "bank_ifsc": obj['bank_ifsc'],
@@ -444,13 +444,16 @@ class PDF(FPDF):
         self.set_xy(15, 227)
         self.cell(130,8,word, 0, 1,'L')
 
-    def terms_conditions(self):
+    def terms_conditions(self,ids):
         self.set_font('Arial', '', 12)
         self.set_xy(15, 235)
         self.cell(20,5,"Note :", 0, 1,'L')
         self.set_font('Arial', '', 10)
         self.set_xy(15,240)
-        self.cell(20,6,"(1) All Disputes are subject of Anoopshahr Jurisdiction.", 0, 1,'L')
+        if ids == 1:
+            self.cell(20,6,"(1) All Disputes are subject of Delhi Jurisdiction.", 0, 1,'L')
+        else:
+            self.cell(20,6,"(1) All Disputes are subject of Anoopshahr Jurisdiction.", 0, 1,'L')
         self.set_xy(15,246)
         self.cell(20,6,"(2) Interest 18% will be charged if not paid within 5 days. E. & O.E.", 0, 1,'L')
         
