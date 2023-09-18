@@ -610,7 +610,7 @@ class BillResourceAPIView(APIView):
 def LoadingUnloadingFun(x,y):
     data = BillDetail.objects.get(pk=x)
     if data.billitems[0]['item'].startswith("paddy"):
-        p = Purchaseorder.objects.get(pk=29)
+        p = Purchaseorder.objects.get(pk=1)
         total_qty = 0
         total_bags = 0
         for billitem in data.billitems:
