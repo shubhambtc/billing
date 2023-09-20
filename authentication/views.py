@@ -223,10 +223,7 @@ def get_page_pdf(pdf, biltype,billdetail):
     pdf.set_detail(billdetail['bill_tos'],billdetail['bill_tos']['ship_details'])
     pdf.bill_items(billdetail['billitems'])
     pdf.remarks(billdetail['remarks'])
-    if billdetail['bill_to'] ==4:
-        pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_uom'], expenses=billdetail['expenses'])
-    else:
-        pdf.expense(bags=billdetail['total_uom'], weight=billdetail['total_qty'], expenses=billdetail['expenses'])
+    pdf.expense(bbilldetail['bill_to'],ags=billdetail['total_uom'], weight=billdetail['total_qty'], expenses=billdetail['expenses'])
     pdf.final_fun(billdetail['frieght'], billdetail['bardana_details'])
     pdf.total_s(billdetail['total_qty'],billdetail['total_uom'])
 

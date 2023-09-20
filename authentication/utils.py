@@ -333,7 +333,7 @@ class PDF(FPDF):
         self.set_xy(170, 195)
         self.cell(25,8,str(round(total_amt,2)), 0, 1,'R')
         
-    def expense(self, bags, weight,expenses):
+    def expense(self, ids,bags, weight,expenses):
         amount = self.all_details['total_amt']/100
         arr = [0,bags,weight,amount]
         exp = {}
@@ -351,7 +351,12 @@ class PDF(FPDF):
         self.all_details['expenses'] = exp['total']
         self.set_font('Arial', 'B', 10)
         self.set_xy(25, 195)
-        self.cell(30,6,"Loading Charges", 0, 1,'C')
+        if ids == 55:
+            self.set_font('Arial', 'B', 8)
+            self.set_xy(25, 195)
+            self.cell(30,6,"Mandi Pur. Exp. 1", 0, 1,'C')
+        else:
+            self.cell(30,6,"Loading Charges", 0, 1,'C')
         self.set_font('Arial', '', 10)
         self.set_xy(25, 201)
         self.cell(30,6,str(exp['loading_charges']), 0, 1,'C')
@@ -390,7 +395,12 @@ class PDF(FPDF):
         self.cell(20,6,"Wages", 0, 1,'C')
         self.set_font('Arial', '', 10)
         self.set_xy(105, 201)
-        self.cell(20,6,str(exp['wages']), 0, 1,'C')
+        if ids == 55:
+            self.set_font('Arial', 'B', 8)
+            self.set_xy(25, 195)
+            self.cell(20,6,"Mandi Pur. Exp. 2", 0, 1,'C')
+        else:
+            self.cell(20,6,str(exp['wages']), 0, 1,'C')
         self.set_font('Arial', 'B', 10)
         self.set_xy(105, 207)
         self.cell(20,6,"Bardana", 0, 1,'C')
