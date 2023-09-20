@@ -395,7 +395,7 @@ class PDF(FPDF):
         if ids == 55:
             self.set_font('Arial', 'B', 8)
             self.set_xy(105, 195)
-            self.cell(20,6,"Mandi Pur. Exp. 2", 0, 1,'C')
+            self.cell(20,6,"Pur. Exp. 2", 0, 1,'C')
         else:
             self.cell(20,6,"Wages", 0, 1,'C')
         self.set_font('Arial', '', 10)
